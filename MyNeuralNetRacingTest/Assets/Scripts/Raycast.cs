@@ -1,0 +1,90 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Raycast : MonoBehaviour {
+
+    public float raycastLength = 10f;
+    [HideInInspector]
+    public float dis_l, dis_flO, dis_flT, dis_f, dis_frO, dis_frT, dis_r, dis_b;
+    [HideInInspector]
+    public RaycastHit hit_l, hit_flO, hit_flT, hit_f, hit_frO, hit_frT, hit_r, hit_b;
+
+    private Vector3 origin, left, frontLeftOne, frontLeftTwo, front, frontRightOne, frontRightTwo, right, back;
+    private float heading;
+
+    // Use this for initialization
+    void Start () {
+        origin = transform.position + Vector3.up * 0.2f;
+        heading = transform.rotation.eulerAngles.y;
+
+        float angle = heading / 180 * Mathf.PI;
+        left = new Vector3 (origin.x - raycastLength * Mathf.Cos (angle), origin.y, origin.z + raycastLength * Mathf.Sin (angle));
+        frontLeftOne = new Vector3 (origin.x - raycastLength * Mathf.Sin (angle - Mathf.PI / 4), origin.y, origin.z - raycastLength * Mathf.Cos (angle - Mathf.PI / 4));
+        frontLeftTwo = new Vector3 (origin.x - raycastLength * Mathf.Sin (angle - Mathf.PI / 8), origin.y, origin.z - raycastLength * Mathf.Cos (angle - Mathf.PI / 8));
+        front = new Vector3 (origin.x - raycastLength * Mathf.Sin (angle), origin.y, origin.z - raycastLength * Mathf.Cos (angle));
+        frontRightOne = new Vector3 (origin.x - raycastLength * Mathf.Sin (angle + Mathf.PI / 4), origin.y, origin.z - raycastLength * Mathf.Cos (angle + Mathf.PI / 4));
+        frontRightTwo = new Vector3 (origin.x - raycastLength * Mathf.Sin (angle + Mathf.PI / 8), origin.y, origin.z - raycastLength * Mathf.Cos (angle + Mathf.PI / 8));
+        right = origin + origin - left;
+        back = origin + origin - front;
+
+        dis_l = 0.0f;
+        dis_flO = 0.0f;
+        dis_flT = 0.0f;
+        dis_f = 0.0f;
+        dis_frO = 0.0f;
+        dis_frT = 0.0f;
+        dis_r = 0.0f;
+        dis_b = 0.0f;
+    }
+	
+	// Update is called once per frame
+	void Update () {
+        origin = transform.position + Vector3.up * 0.2f;
+        heading = transform.rotation.eulerAngles.y - 180f;
+
+        float angle = heading / 180 * Mathf.PI;
+        left = new Vector3 (origin.x - raycastLength * Mathf.Cos (angle), origin.y, origin.z + raycastLength * Mathf.Sin (angle));
+        frontLeftOne = new Vector3 (origin.x - raycastLength * Mathf.Sin (angle - Mathf.PI / 4), origin.y, origin.z - raycastLength * Mathf.Cos (angle - Mathf.PI / 4));
+        frontLeftTwo = new Vector3 (origin.x - raycastLength * Mathf.Sin (angle - Mathf.PI / 8), origin.y, origin.z - raycastLength * Mathf.Cos (angle - Mathf.PI / 8));
+        front = new Vector3 (origin.x - raycastLength * Mathf.Sin (angle), origin.y, origin.z - raycastLength * Mathf.Cos (angle));
+        frontRightOne = new Vector3 (origin.x - raycastLength * Mathf.Sin (angle + Mathf.PI / 4), origin.y, origin.z - raycastLength * Mathf.Cos (angle + Mathf.PI / 4));
+        frontRightTwo = new Vector3 (origin.x - raycastLength * Mathf.Sin (angle + Mathf.PI / 8), origin.y, origin.z - raycastLength * Mathf.Cos (angle + Mathf.PI / 8));
+        right = origin + origin - left;
+        back = origin + origin - front;
+
+
+        Physics.Linecast (origin, left, out hit_l);
+        Debug.DrawLine (origin, left, Color.red);
+        
+        Physics.Linecast (origin, frontLeftOne, out hit_flO);
+        Debug.DrawLine (origin, frontLeftOne, Color.red);
+
+        Physics.Linecast (origin, frontLeftTwo, out hit_flT);
+        Debug.DrawLine (origin, frontLeftTwo, Color.red);
+
+        Physics.Linecast (origin, front, out hit_f);
+        Debug.DrawLine (origin, front, Color.green);
+        
+        Physics.Linecast (origin, frontRightOne, out hit_frO);
+        Debug.DrawLine (origin, frontRightOne, Color.red);
+
+        Physics.Linecast (origin, frontRightTwo, out hit_frT);
+        Debug.DrawLine (origin, frontRightTwo, Color.red);
+
+        Physics.Linecast (origin, right, out hit_r);
+        Debug.DrawLine (origin, right, Color.red);
+
+        Physics.Linecast (origin, back, out hit_b);
+        Debug.DrawLine (origin, back, Color.white);
+
+        dis_l = hit_l.distance;
+        dis_flO = hit_flO.distance;
+        dis_flT = hit_flT.distance;
+        dis_f = hit_f.distance;
+        dis_frO = hit_frO.distance;
+        dis_frT = hit_frT.distance;
+        dis_r = hit_r.distance;
+        dis_b = hit_b.distance;
+    }
+}
