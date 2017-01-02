@@ -8,6 +8,7 @@ using UnityEngine;
 public class NeuralNet : MonoBehaviour {
 
     // http://stevenmiller888.github.io/mind-how-to-build-a-neural-network/
+    // http://nn.cs.utexas.edu/downloads/papers/stanley.ec02.pdf
 
     private UnityStandardAssets.Vehicles.Car.CarUserControl carControl;
     private Raycast raycast;
