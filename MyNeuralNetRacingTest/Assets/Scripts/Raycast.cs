@@ -40,17 +40,17 @@ public class Raycast : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        origin = transform.position + Vector3.up * 0.2f;
+        origin = transform.position + Vector3.up * 0.5f;
         heading = transform.rotation.eulerAngles.y - 180f;
 
         float angle = heading / 180 * Mathf.PI;
-        left = new Vector3 (origin.x - raycastLength * Mathf.Cos (angle), origin.y, origin.z + raycastLength * Mathf.Sin (angle));
-        frontLeftOne = new Vector3 (origin.x - raycastLength * Mathf.Sin (angle - Mathf.PI / 4), origin.y, origin.z - raycastLength * Mathf.Cos (angle - Mathf.PI / 4));
-        frontLeftTwo = new Vector3 (origin.x - raycastLength * Mathf.Sin (angle - Mathf.PI / 8), origin.y, origin.z - raycastLength * Mathf.Cos (angle - Mathf.PI / 8));
+        right = new Vector3 (origin.x - raycastLength * Mathf.Cos (angle), origin.y, origin.z + raycastLength * Mathf.Sin (angle));
+        frontRightOne = new Vector3 (origin.x - raycastLength * Mathf.Sin (angle - Mathf.PI / 4), origin.y, origin.z - raycastLength * Mathf.Cos (angle - Mathf.PI / 4));
+        frontRightTwo = new Vector3 (origin.x - raycastLength * Mathf.Sin (angle - Mathf.PI / 8), origin.y, origin.z - raycastLength * Mathf.Cos (angle - Mathf.PI / 8));
         front = new Vector3 (origin.x - raycastLength * Mathf.Sin (angle), origin.y, origin.z - raycastLength * Mathf.Cos (angle));
-        frontRightOne = new Vector3 (origin.x - raycastLength * Mathf.Sin (angle + Mathf.PI / 4), origin.y, origin.z - raycastLength * Mathf.Cos (angle + Mathf.PI / 4));
-        frontRightTwo = new Vector3 (origin.x - raycastLength * Mathf.Sin (angle + Mathf.PI / 8), origin.y, origin.z - raycastLength * Mathf.Cos (angle + Mathf.PI / 8));
-        right = origin + origin - left;
+        frontLeftOne = new Vector3 (origin.x - raycastLength * Mathf.Sin (angle + Mathf.PI / 4), origin.y, origin.z - raycastLength * Mathf.Cos (angle + Mathf.PI / 4));
+        frontLeftTwo = new Vector3 (origin.x - raycastLength * Mathf.Sin (angle + Mathf.PI / 8), origin.y, origin.z - raycastLength * Mathf.Cos (angle + Mathf.PI / 8));
+        left = origin + origin - right;
         back = origin + origin - front;
 
 
@@ -58,22 +58,22 @@ public class Raycast : MonoBehaviour {
         Debug.DrawLine (origin, left, Color.red);
         
         Physics.Linecast (origin, frontLeftOne, out hit_flO);
-        Debug.DrawLine (origin, frontLeftOne, Color.red);
+        Debug.DrawLine (origin, frontLeftOne, Color.cyan);
 
         Physics.Linecast (origin, frontLeftTwo, out hit_flT);
-        Debug.DrawLine (origin, frontLeftTwo, Color.red);
+        Debug.DrawLine (origin, frontLeftTwo, Color.cyan);
 
         Physics.Linecast (origin, front, out hit_f);
         Debug.DrawLine (origin, front, Color.green);
         
         Physics.Linecast (origin, frontRightOne, out hit_frO);
-        Debug.DrawLine (origin, frontRightOne, Color.red);
+        Debug.DrawLine (origin, frontRightOne, Color.magenta);
 
         Physics.Linecast (origin, frontRightTwo, out hit_frT);
-        Debug.DrawLine (origin, frontRightTwo, Color.red);
+        Debug.DrawLine (origin, frontRightTwo, Color.magenta);
 
         Physics.Linecast (origin, right, out hit_r);
-        Debug.DrawLine (origin, right, Color.red);
+        Debug.DrawLine (origin, right, Color.blue);
 
         Physics.Linecast (origin, back, out hit_b);
         Debug.DrawLine (origin, back, Color.white);

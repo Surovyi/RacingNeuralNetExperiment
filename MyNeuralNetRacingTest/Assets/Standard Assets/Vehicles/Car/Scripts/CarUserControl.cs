@@ -9,6 +9,7 @@ namespace UnityStandardAssets.Vehicles.Car
     {
         private CarController m_Car; // the car controller we want to use
 
+        [HideInInspector]
         public float h, v;
         public bool crash = false;
 
