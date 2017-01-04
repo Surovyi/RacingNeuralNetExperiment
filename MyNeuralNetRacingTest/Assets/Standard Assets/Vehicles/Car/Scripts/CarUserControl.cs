@@ -11,6 +11,7 @@ namespace UnityStandardAssets.Vehicles.Car
 
         [HideInInspector]
         public float h, v;
+        [HideInInspector]
         public bool crash = false;
 
 
