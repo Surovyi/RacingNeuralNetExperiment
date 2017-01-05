@@ -52,6 +52,8 @@ namespace UnityStandardAssets.Vehicles.Car
         {
             if (other.gameObject.tag != "Waypoint") {
                 crash = true;
+            } else if (other.gameObject.tag == "Waypoint") { 
+
             }
         }
     }

@@ -15,7 +15,7 @@ public class NeuralNet : MonoBehaviour {
 
     private bool m_hasFailed = false;
 
-    private List<Neuron> m_network = new List<Neuron>();
+    private List<Neuron> m_network = new List<Neuron>(); // Does not contain input neurons
 
     private List <float> m_inputs = new List<float>();
     private List <float> m_outputs = new List<float>(); //h, v
@@ -30,15 +30,10 @@ public class NeuralNet : MonoBehaviour {
         m_raycast = GetComponent<Raycast> ();
     }
 
-    public void Start()
+    public void CreateNeuralNet (int hiddenLayersCount, int inputNeurons, int hiddenNeurons, int outputNeurons)
     {
         m_inputs = GetInputs ();
 
-        CreateNeuralNet (1, 8, 8, 2);
-    }
-
-    private void CreateNeuralNet (int hiddenLayersCount, int inputNeurons, int hiddenNeurons, int outputNeurons)
-    {
         for (int i = 0; i < inputNeurons; i++) {
             Neuron neuron = new Neuron (Neuron.NeuronType.INPUT);
             neuron.m_inputValue = m_inputs[i];
@@ -60,13 +55,38 @@ public class NeuralNet : MonoBehaviour {
         }
     }
 
+    public void CreateNetFromGenome (GeneticAlg.Genome genome, int numOfInputs, int numOfHidden, int numOfOutputs)
+    {
+        m_network.Clear ();
+        m_network.AddRange (GetInputNeurons ());
+
+        for (int i = 0; i < numOfHidden; i++) {
+            Neuron hiddenNeuron = new Neuron (Neuron.NeuronType.HIDDEN);
+
+            for (int j = 0; j < numOfInputs; j++) {
+                hiddenNeuron.m_weights.Add (genome.weights[i * numOfHidden + j]);
+            }
+
+            m_network.Add (hiddenNeuron);
+        }
+
+        for (int i = numOfHidden; i < numOfHidden + numOfOutputs; i++) {
+            Neuron outputNeuron = new Neuron (Neuron.NeuronType.OUTPUT);
+
+            for (int j = 0; j < numOfHidden; j++) {
+                outputNeuron.m_weights.Add (genome.weights[i * numOfHidden + j]);
+            }
+
+            m_network.Add (outputNeuron);
+        }
+    }
+
     public void Update()
     {
         m_hasFailed = carControl.crash;
         if (m_hasFailed == false) {
             m_distance += Time.deltaTime;
 
-            m_inputs = GetInputs ();
             Refresh ();
 
             carControl.h = m_outputs[0];
@@ -92,12 +112,25 @@ public class NeuralNet : MonoBehaviour {
         return m_inputs;
     }
 
+    public List <Neuron> GetInputNeurons ()
+    {
+        List<Neuron> inputNeurons = new List<Neuron> ();
+        for (int i = 0; i < m_inputs.Count; i++) {
+            Neuron neuron = new Neuron (Neuron.NeuronType.INPUT);
+            neuron.m_inputValue = m_inputs[i];
+            inputNeurons.Add (neuron);
+        }
+
+        return inputNeurons;
+    }
+
     private void Refresh ()
     {
+        m_inputs = GetInputs ();
         m_outputs.Clear ();
 
-        List<Neuron> hiddenNeurons = new List<Neuron> ();
         List<Neuron> inputNeurons = new List<Neuron> ();
+        List<Neuron> hiddenNeurons = new List<Neuron> ();
         List<Neuron> outputNeurons = new List<Neuron> ();
 
         inputNeurons = m_network.FindAll (x => x.m_neuronType == Neuron.NeuronType.INPUT);
@@ -107,7 +140,7 @@ public class NeuralNet : MonoBehaviour {
         for (int i = 0; i < hiddenNeurons.Count; i++) {
             float value = 0f;
             for (int j = 0; j < inputNeurons.Count; j++) {
-                value += m_inputs[j] * hiddenNeurons[i].m_weights[j];
+                value += inputNeurons[j].GetOutputValue() * hiddenNeurons[i].m_weights[j];
             }
             hiddenNeurons[i].m_inputValue = value;
         }
@@ -120,8 +153,6 @@ public class NeuralNet : MonoBehaviour {
             outputNeurons[i].m_inputValue = value;
             m_outputs.Add (outputNeurons[i].GetOutputValue ());
         }
-
-
     }
 
     public class Neuron
