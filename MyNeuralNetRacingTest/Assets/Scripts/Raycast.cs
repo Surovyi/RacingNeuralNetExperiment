@@ -1,20 +1,32 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Raycast : MonoBehaviour {
 
-    public float raycastLength = 10f;
+    public float raycastLength = 12f;
     [HideInInspector]
     public float dis_l, dis_flO, dis_flT, dis_f, dis_frO, dis_frT, dis_r, dis_b;
     [HideInInspector]
     public RaycastHit hit_l, hit_flO, hit_flT, hit_f, hit_frO, hit_frT, hit_r, hit_b;
+    [HideInInspector]
+    public bool m_crash = false;
+
+    public LayerMask layerMask;
+
+    private int m_nextWaypointID = 0;
 
     private Vector3 origin, left, frontLeftOne, frontLeftTwo, front, frontRightOne, frontRightTwo, right, back;
     private float heading;
 
+    private UnityStandardAssets.Vehicles.Car.CarUserControl m_carControl;
+    private Brains m_brains;
+
     // Use this for initialization
     void Start () {
+        m_carControl = GetComponent<UnityStandardAssets.Vehicles.Car.CarUserControl> ();
+        m_brains = GetComponent<Brains> ();
         origin = transform.position + Vector3.up * 0.2f;
         heading = transform.rotation.eulerAngles.y;
 
@@ -54,28 +66,28 @@ public class Raycast : MonoBehaviour {
         back = origin + origin - front;
 
 
-        Physics.Linecast (origin, left, out hit_l);
+        Physics.Linecast (origin, left, out hit_l, layerMask);
         Debug.DrawLine (origin, left, Color.red);
         
-        Physics.Linecast (origin, frontLeftOne, out hit_flO);
+        Physics.Linecast (origin, frontLeftOne, out hit_flO, layerMask);
         Debug.DrawLine (origin, frontLeftOne, Color.cyan);
 
-        Physics.Linecast (origin, frontLeftTwo, out hit_flT);
+        Physics.Linecast (origin, frontLeftTwo, out hit_flT, layerMask);
         Debug.DrawLine (origin, frontLeftTwo, Color.cyan);
 
-        Physics.Linecast (origin, front, out hit_f);
+        Physics.Linecast (origin, front, out hit_f, layerMask);
         Debug.DrawLine (origin, front, Color.green);
         
-        Physics.Linecast (origin, frontRightOne, out hit_frO);
+        Physics.Linecast (origin, frontRightOne, out hit_frO, layerMask);
         Debug.DrawLine (origin, frontRightOne, Color.magenta);
 
-        Physics.Linecast (origin, frontRightTwo, out hit_frT);
+        Physics.Linecast (origin, frontRightTwo, out hit_frT, layerMask);
         Debug.DrawLine (origin, frontRightTwo, Color.magenta);
 
-        Physics.Linecast (origin, right, out hit_r);
+        Physics.Linecast (origin, right, out hit_r, layerMask);
         Debug.DrawLine (origin, right, Color.blue);
 
-        Physics.Linecast (origin, back, out hit_b);
+        Physics.Linecast (origin, back, out hit_b, layerMask);
         Debug.DrawLine (origin, back, Color.white);
 
         dis_l = hit_l.distance;
@@ -86,5 +98,26 @@ public class Raycast : MonoBehaviour {
         dis_frT = hit_frT.distance;
         dis_r = hit_r.distance;
         dis_b = hit_b.distance;
+    }
+
+    private void OnTriggerEnter (Collider other)
+    {
+        if (other.gameObject.tag != "Waypoint") {
+            m_crash = true;
+            m_carControl.crash = true;
+        } else if (other.gameObject.tag == "Waypoint") {
+            Waypoint waypoint = m_brains.m_waypoints.First (x => x.ID == other.GetComponent<Waypoint> ().ID);
+            if (waypoint.ID == m_nextWaypointID) {
+                m_nextWaypointID++;
+                waypoint.gameObject.SetActive (false);
+                m_brains.m_waypointsPast++;
+            }
+        }
+    }
+
+    public void ResetCrash ()
+    {
+        m_crash = false;
+        m_nextWaypointID = 0;
     }
 }

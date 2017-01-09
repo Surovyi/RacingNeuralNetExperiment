@@ -60,6 +60,11 @@ public class GeneticAlg
         return m_population[this.m_currentGenome];
     }
 
+    public Genome GetCurrentGenome ()
+    {
+        return m_population[this.m_currentGenome];
+    }
+
     public Genome GetWorstGenome ()
     {
         int worstGenome = -1;
@@ -92,6 +97,20 @@ public class GeneticAlg
         return bestCases;
     }
 
+    public int GetCurrentGenomeIndex ()
+    {
+        return m_currentGenome;
+    }
+
+    public void SetGenomeFitness (int index, float fitness)
+    {
+        if (index >= m_population.Count) {
+            return;
+        }
+
+        m_population[index].fitness = fitness;
+    }
+
     public List <Genome> CrossbreedGenomes (Genome g1, Genome g2)
     {
         List<Genome> children = new List<Genome> ();
@@ -107,14 +126,17 @@ public class GeneticAlg
         int crossoverIndex = Random.Range (1, parentSynapsesCount);
 
         for (int i = 0; i < crossoverIndex; i++) {
-            childrenOne.weights[i] = g1.weights[i];
-            childrenTwo.weights[i] = g2.weights[i];
+            childrenOne.weights.Add (g1.weights[i]);
+            childrenTwo.weights.Add (g2.weights[i]);
         }
 
         for (int i = crossoverIndex; i < parentSynapsesCount; i++) {
-            childrenOne.weights[i] = g2.weights[i];
-            childrenTwo.weights[i] = g1.weights[i];
+            childrenOne.weights.Add (g2.weights[i]);
+            childrenTwo.weights.Add (g1.weights[i]);
         }
+
+        children.Add (childrenOne);
+        children.Add (childrenTwo);
 
         return children;
     }
@@ -128,29 +150,31 @@ public class GeneticAlg
         childrens.Add (bestGenomes[0]);
 
         List<Genome> candidates = new List<Genome> ();
-        candidates = CrossbreedGenomes (bestGenomes[0], bestGenomes[1]);
+        candidates.AddRange (CrossbreedGenomes (bestGenomes[0], bestGenomes[1]));
         candidates[0] = Mutate (candidates[0]);
         candidates[1] = Mutate (candidates[1]);
 
-        candidates = CrossbreedGenomes (bestGenomes[0], bestGenomes[2]);
-        candidates[0] = Mutate (candidates[0]);
-        candidates[1] = Mutate (candidates[1]);
+        candidates.AddRange (CrossbreedGenomes (bestGenomes[0], bestGenomes[2]));
+        candidates[2] = Mutate (candidates[2]);
+        candidates[3] = Mutate (candidates[3]);
 
-        candidates = CrossbreedGenomes (bestGenomes[0], bestGenomes[3]);
-        candidates[0] = Mutate (candidates[0]);
-        candidates[1] = Mutate (candidates[1]);
+        candidates.AddRange (CrossbreedGenomes (bestGenomes[0], bestGenomes[3]));
+        candidates[4] = Mutate (candidates[4]);
+        candidates[5] = Mutate (candidates[5]);
 
-        candidates = CrossbreedGenomes (bestGenomes[1], bestGenomes[2]);
-        candidates[0] = Mutate (candidates[0]);
-        candidates[1] = Mutate (candidates[1]);
+        candidates.AddRange (CrossbreedGenomes (bestGenomes[1], bestGenomes[2]));
+        candidates[6] = Mutate (candidates[6]);
+        candidates[7] = Mutate (candidates[7]);
 
-        candidates = CrossbreedGenomes (bestGenomes[1], bestGenomes[3]);
-        candidates[0] = Mutate (candidates[0]);
-        candidates[1] = Mutate (candidates[1]);
+        candidates.AddRange (CrossbreedGenomes (bestGenomes[1], bestGenomes[3]));
+        candidates[8] = Mutate (candidates[8]);
+        candidates[9] = Mutate (candidates[9]);
 
-        candidates = CrossbreedGenomes (bestGenomes[2], bestGenomes[3]);
-        candidates[0] = Mutate (candidates[0]);
-        candidates[1] = Mutate (candidates[1]);
+        //candidates.AddRange (CrossbreedGenomes (bestGenomes[2], bestGenomes[3]));
+        //candidates[10] = Mutate (candidates[10]);
+        //candidates[11] = Mutate (candidates[11]);
+
+        childrens.AddRange (candidates);
 
         int remainingCount = (m_totalPopulation - childrens.Count);
         for (int i = 0; i < remainingCount; i++) {
@@ -188,7 +212,7 @@ public class GeneticAlg
     }
 
 
-
+    [System.Serializable]
     public class Genome
     {
         public float fitness = 0.0f;

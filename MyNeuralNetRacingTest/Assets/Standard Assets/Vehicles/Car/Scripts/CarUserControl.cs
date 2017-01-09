@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityStandardAssets.CrossPlatformInput;
 
@@ -9,11 +11,14 @@ namespace UnityStandardAssets.Vehicles.Car
     {
         private CarController m_Car; // the car controller we want to use
 
-        [HideInInspector]
-        public float h, v;
+        private float h;
+        private float v;
+
+        public float H { get { return h; } set { h = value; } }
+        public float V { get { return v; } set { v = value; } }
+
         [HideInInspector]
         public bool crash = false;
-
 
         private void Awake ()
         {
@@ -28,33 +33,37 @@ namespace UnityStandardAssets.Vehicles.Car
             //Neural net has to return 'h' and 'v' {-1; 1}
 
 
-
-
-
-
-
-
-
             // pass the input to the car!
             //float h = CrossPlatformInputManager.GetAxis ("Horizontal");
             //float v = CrossPlatformInputManager.GetAxis ("Vertical");
 #if !MOBILE_INPUT
-            float handbrake = CrossPlatformInputManager.GetAxis ("Jump");
-
-            //Debug.Log ("Hor: " + h + " || Vert: " + v);
-            m_Car.Move (h, v, v, handbrake);
+            //float handbrake = CrossPlatformInputManager.GetAxis ("Jump");
+            m_Car.Move (h, v, v, 0f);
 #else
             m_Car.Move(h, v, v, 0f);
 #endif
         }
 
-        private void OnTriggerEnter (Collider other)
+        public void ResetAxis ()
         {
-            if (other.gameObject.tag != "Waypoint") {
-                crash = true;
-            } else if (other.gameObject.tag == "Waypoint") { 
-
+            h = 0f;
+            v = 0f;
+            
+            foreach (WheelCollider wheel in m_Car.m_WheelColliders) {
+                wheel.brakeTorque = Mathf.Infinity;
             }
+
+            m_Car.m_Rigidbody.isKinematic = true;
+            StartCoroutine (ActivateRigidbody ());
+        }
+
+        private IEnumerator ActivateRigidbody ()
+        {
+            yield return new WaitForFixedUpdate ();
+            foreach (WheelCollider wheel in m_Car.m_WheelColliders) {
+                wheel.brakeTorque = 0f;
+            }
+            m_Car.m_Rigidbody.isKinematic = false;
         }
     }
 }

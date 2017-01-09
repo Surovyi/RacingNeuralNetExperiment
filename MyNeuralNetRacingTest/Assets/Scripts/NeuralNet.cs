@@ -1,59 +1,24 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent (typeof (UnityStandardAssets.Vehicles.Car.CarUserControl))]
-public class NeuralNet : MonoBehaviour {
+public class NeuralNet {
 
     // http://stevenmiller888.github.io/mind-how-to-build-a-neural-network/
     // http://nn.cs.utexas.edu/downloads/papers/stanley.ec02.pdf
 
-    private UnityStandardAssets.Vehicles.Car.CarUserControl carControl;
-    private Raycast m_raycast;
-
-    private bool m_hasFailed = false;
+    [HideInInspector]
+    public bool m_hasFailed = false;
 
     private List<Neuron> m_network = new List<Neuron>(); // Does not contain input neurons
 
     private List <float> m_inputs = new List<float>();
-    private List <float> m_outputs = new List<float>(); //h, v
+    public List <float> m_outputs = new List<float>(); //h, v
     private int m_outputsCount = 2;
 
     private int m_passedCheckpointsCount = 0;
-    private float m_distance = 0f;
-
-    public void Awake()
-    {
-        carControl = GetComponent<UnityStandardAssets.Vehicles.Car.CarUserControl> ();
-        m_raycast = GetComponent<Raycast> ();
-    }
-
-    public void CreateNeuralNet (int hiddenLayersCount, int inputNeurons, int hiddenNeurons, int outputNeurons)
-    {
-        m_inputs = GetInputs ();
-
-        for (int i = 0; i < inputNeurons; i++) {
-            Neuron neuron = new Neuron (Neuron.NeuronType.INPUT);
-            neuron.m_inputValue = m_inputs[i];
-            m_network.Add (neuron);
-        }
-
-        for (int i = 0; i < hiddenLayersCount; i++) {
-            for (int j = 0; j < hiddenNeurons; j++) {
-                Neuron neuron = new Neuron (Neuron.NeuronType.HIDDEN);
-                neuron.SetRandomWeights (inputNeurons);
-                m_network.Add (neuron);
-            }
-        }
-
-        for (int i = 0; i < outputNeurons; i++) {
-            Neuron neuron = new Neuron (Neuron.NeuronType.OUTPUT);
-            neuron.SetRandomWeights (hiddenNeurons);
-            m_network.Add (neuron);
-        }
-    }
+    public float m_spentTime = 0f;
+    private float m_timeThreshold = 4f;
 
     public void CreateNetFromGenome (GeneticAlg.Genome genome, int numOfInputs, int numOfHidden, int numOfOutputs)
     {
@@ -81,33 +46,47 @@ public class NeuralNet : MonoBehaviour {
         }
     }
 
-    public void Update()
+    public void MakeUpdate(Raycast raycast, int pastWaypoints)
     {
-        m_hasFailed = carControl.crash;
-        if (m_hasFailed == false) {
-            m_distance += Time.deltaTime;
-
-            Refresh ();
-
-            carControl.h = m_outputs[0];
-            carControl.v = m_outputs[1];
+        if (pastWaypoints == m_passedCheckpointsCount) {
+            m_spentTime += Time.deltaTime;
         } else {
-            m_distance = 0f;
+            m_passedCheckpointsCount = pastWaypoints;
+            m_spentTime = Time.deltaTime;
+            m_timeThreshold += 0.5f;
+        }
+
+        m_hasFailed = raycast.m_crash;
+        if (m_hasFailed == false) {
+            Refresh (raycast);
+        }
+
+        if (m_spentTime >= m_timeThreshold) {
+            m_hasFailed = true;
+            m_spentTime = Time.deltaTime;
         }
     }
 
-    public List<float> GetInputs()
+    public void ClearFailure ()
+    {
+        m_hasFailed = false;
+        m_spentTime = 0f;
+        m_passedCheckpointsCount = 0;
+        m_timeThreshold = 4f;
+    }
+
+    public List<float> GetInputs(Raycast raycast)
     {
         // 8 raycasts
         m_inputs = new List<float> ();
-        m_inputs.Add (m_raycast.dis_l / m_raycast.raycastLength);
-        m_inputs.Add (m_raycast.dis_flO / m_raycast.raycastLength);
-        m_inputs.Add (m_raycast.dis_flT / m_raycast.raycastLength);
-        m_inputs.Add (m_raycast.dis_f / m_raycast.raycastLength);
-        m_inputs.Add (m_raycast.dis_frO / m_raycast.raycastLength);
-        m_inputs.Add (m_raycast.dis_frT / m_raycast.raycastLength);
-        m_inputs.Add (m_raycast.dis_r / m_raycast.raycastLength);
-        m_inputs.Add (m_raycast.dis_b / m_raycast.raycastLength);
+        m_inputs.Add (raycast.dis_l / raycast.raycastLength);
+        m_inputs.Add (raycast.dis_flO / raycast.raycastLength);
+        m_inputs.Add (raycast.dis_flT / raycast.raycastLength);
+        m_inputs.Add (raycast.dis_f / raycast.raycastLength);
+        m_inputs.Add (raycast.dis_frO / raycast.raycastLength);
+        m_inputs.Add (raycast.dis_frT / raycast.raycastLength);
+        m_inputs.Add (raycast.dis_r / raycast.raycastLength);
+        m_inputs.Add (raycast.dis_b / raycast.raycastLength);
 
         return m_inputs;
     }
@@ -124,9 +103,9 @@ public class NeuralNet : MonoBehaviour {
         return inputNeurons;
     }
 
-    private void Refresh ()
+    private void Refresh (Raycast raycast)
     {
-        m_inputs = GetInputs ();
+        m_inputs = GetInputs (raycast);
         m_outputs.Clear ();
 
         List<Neuron> inputNeurons = new List<Neuron> ();
@@ -139,8 +118,8 @@ public class NeuralNet : MonoBehaviour {
 
         for (int i = 0; i < hiddenNeurons.Count; i++) {
             float value = 0f;
-            for (int j = 0; j < inputNeurons.Count; j++) {
-                value += inputNeurons[j].GetOutputValue() * hiddenNeurons[i].m_weights[j];
+            for (int j = 0; j < m_inputs.Count; j++) {
+                value += m_inputs[j] * hiddenNeurons[i].m_weights[j];
             }
             hiddenNeurons[i].m_inputValue = value;
         }
@@ -175,7 +154,7 @@ public class NeuralNet : MonoBehaviour {
 
         private float HeperbolicTangent (float x)
         {
-            return (1 - Mathf.Exp (-2 * x)) / (1 + Mathf.Exp (2 * x));
+            return (Mathf.Exp (x) - Mathf.Exp (-x)) / (Mathf.Exp (x) + Mathf.Exp (-x));
         }
 
         private float Normalize (float x, float max)
@@ -188,7 +167,7 @@ public class NeuralNet : MonoBehaviour {
             if (m_neuronType == NeuronType.INPUT) {
                 return m_inputValue;
             }
-            m_outputValue = Sigmoid (m_inputValue);
+            m_outputValue = HeperbolicTangent (m_inputValue);
             return m_outputValue;
         }
 

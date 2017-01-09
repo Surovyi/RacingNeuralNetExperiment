@@ -19,7 +19,7 @@ namespace UnityStandardAssets.Vehicles.Car
     public class CarController : MonoBehaviour
     {
         [SerializeField] private CarDriveType m_CarDriveType = CarDriveType.FourWheelDrive;
-        [SerializeField] private WheelCollider[] m_WheelColliders = new WheelCollider[4];
+        [SerializeField] public WheelCollider[] m_WheelColliders = new WheelCollider[4];
         [SerializeField] private GameObject[] m_WheelMeshes = new GameObject[4];
         [SerializeField] private WheelEffects[] m_WheelEffects = new WheelEffects[4];
         [SerializeField] private Vector3 m_CentreOfMassOffset;
@@ -44,7 +44,7 @@ namespace UnityStandardAssets.Vehicles.Car
         private float m_GearFactor;
         private float m_OldRotation;
         private float m_CurrentTorque;
-        private Rigidbody m_Rigidbody;
+        public Rigidbody m_Rigidbody;
         private const float k_ReversingThreshold = 0.01f;
 
         public bool Skidding { get; private set; }
@@ -260,6 +260,17 @@ namespace UnityStandardAssets.Vehicles.Car
         {
             m_WheelColliders[0].attachedRigidbody.AddForce(-transform.up*m_Downforce*
                                                          m_WheelColliders[0].attachedRigidbody.velocity.magnitude);
+        }
+
+        public void ResetWheels ()
+        {
+            foreach (WheelCollider wheel in m_WheelColliders) {
+                wheel.attachedRigidbody.velocity = Vector3.zero;
+                m_Rigidbody.velocity = Vector3.zero;
+                Revs = 0f;
+                AccelInput = 0f;
+                m_CurrentTorque = 0f;
+            }
         }
 
 
