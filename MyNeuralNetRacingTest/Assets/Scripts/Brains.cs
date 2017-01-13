@@ -4,17 +4,17 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent (typeof (UnityStandardAssets.Vehicles.Car.CarUserControl))]
-[RequireComponent (typeof (Raycast))]
 public class Brains : MonoBehaviour {
+	public static Brains instance;
 
-    public Text generation;
-    public Text genome;
-    public Text bestFitness;
-    public Text fitness;
-    public Text h;
-    public Text v;
-    public Text time;
+
+	private Text generation;
+	private Text genome;
+	private Text bestFitness;
+	private Text fitness;
+	private Text h;
+	private Text v;
+	private Text time;
 
     public bool loadBestGenome = false;
 
@@ -22,6 +22,8 @@ public class Brains : MonoBehaviour {
     private GeneticAlg m_geneticAlg;
     private Raycast m_raycaster;
     protected UnityStandardAssets.Vehicles.Car.CarUserControl m_carControl;
+
+	private Dictionary <string, Text> m_mapToText = new Dictionary<string, Text> ();
 
     protected float m_currentFitness = 0f;
     protected float m_bestFitness = 0f;
@@ -40,11 +42,33 @@ public class Brains : MonoBehaviour {
     [HideInInspector]
     public int m_waypointsPast = 0;
 
+	private Brains () {
+		m_mapToText.Add ("Generation Num", generation);
+		m_mapToText.Add ("Genome Num", genome);
+		m_mapToText.Add ("Best Fit Num", bestFitness);
+		m_mapToText.Add ("Fitness Num", fitness);
+		m_mapToText.Add ("H Num", h);
+		m_mapToText.Add ("V Num", v);
+		m_mapToText.Add ("Time Num", time);
+
+		Debug.Log ("mapToText initialized");
+	}
+
     private void Awake ()
     {
-        m_carControl = GetComponent<UnityStandardAssets.Vehicles.Car.CarUserControl> ();
+		if (instance == null) {
+			instance = this;
+			DontDestroyOnLoad (this.gameObject);
+		}
+
+		m_carControl = FindObjectOfType<UnityStandardAssets.Vehicles.Car.CarUserControl> ();
         m_waypoints = FindObjectsOfType<Waypoint> ().ToList ();
-        m_raycaster = GetComponent<Raycast> ();
+		m_raycaster = m_carControl.GetComponent<Raycast> ();
+
+		GameObject canvas = GameObject.FindGameObjectWithTag ("UICanvas");
+		foreach (KeyValuePair <string, Text> kvp in m_mapToText) {
+			m_mapToText [kvp.Key] = canvas.transform.FindChild (kvp.Key).GetComponent<Text> ();
+		}
     }
 
     private void Start ()
@@ -142,14 +166,14 @@ public class Brains : MonoBehaviour {
 
     private void UpdateUILayer ()
     {
-        generation.text = m_currentGenerationIndex.ToString ();
-        genome.text = m_currentGenomeIndex.ToString ();
-        bestFitness.text = m_bestFitness.ToString ();
-        fitness.text = m_currentFitness.ToString ();
+		m_mapToText["Generation Num"].text = m_currentGenerationIndex.ToString ();
+		m_mapToText["Genome Num"].text = m_currentGenomeIndex.ToString ();
+		m_mapToText["Best Fit Num"].text = m_bestFitness.ToString ();
+		m_mapToText["Fitness Num"].text = m_currentFitness.ToString ();
         if (m_neuralNet.m_outputs.Count > 1) {
-            h.text = m_carControl.H.ToString ();
-            v.text = m_neuralNet.m_outputs[1].ToString ();
+			m_mapToText["H Num"].text = m_carControl.H.ToString ();
+			m_mapToText["V Num"].text = m_neuralNet.m_outputs[1].ToString ();
         }
-        time.text = m_neuralNet.m_spentTime.ToString();
+		m_mapToText["Time Num"].text = m_neuralNet.m_spentTime.ToString();
     }
 }
