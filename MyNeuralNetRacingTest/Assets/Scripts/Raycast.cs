@@ -26,7 +26,7 @@ public class Raycast : MonoBehaviour {
     // Use this for initialization
     void Start () {
         m_carControl = GetComponent<UnityStandardAssets.Vehicles.Car.CarUserControl> ();
-        m_brains = GetComponent<Brains> ();
+        m_brains = FindObjectOfType<Brains> ();
         origin = transform.position + Vector3.up * 0.2f;
         heading = transform.rotation.eulerAngles.y;
 
