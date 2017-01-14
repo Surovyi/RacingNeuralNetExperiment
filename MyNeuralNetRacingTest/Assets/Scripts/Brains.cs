@@ -57,7 +57,6 @@ public class Brains : MonoBehaviour {
 
     private void Start ()
     {
-        Debug.Log ("1");
         m_carControl = FindObjectOfType<UnityStandardAssets.Vehicles.Car.CarUserControl> ();
         m_waypoints = FindObjectsOfType<Waypoint> ().ToList ();
         m_raycaster = m_carControl.GetComponent<Raycast> ();
@@ -90,7 +89,7 @@ public class Brains : MonoBehaviour {
     private IEnumerator WaitGenomeStart()
     {
         m_canGo = false;
-        yield return new WaitForSeconds (1.0f);
+        yield return new WaitForSeconds (0.3f);
         m_canGo = true;
     }
 

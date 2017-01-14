@@ -106,6 +106,9 @@ public class Raycast : MonoBehaviour {
             m_crash = true;
             m_carControl.crash = true;
         } else if (other.gameObject.tag == "Waypoint") {
+            if (m_brains.m_waypoints.Count == 0) {
+                return;
+            }
             Waypoint waypoint = m_brains.m_waypoints.First (x => x.ID == other.GetComponent<Waypoint> ().ID);
             if (waypoint.ID == m_nextWaypointID) {
                 m_nextWaypointID++;

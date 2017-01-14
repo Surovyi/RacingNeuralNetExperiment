@@ -14,7 +14,6 @@ public class NeuralNet {
 
     private List <float> m_inputs = new List<float>();
     public List <float> m_outputs = new List<float>(); //h, v
-    private int m_outputsCount = 2;
 
     private int m_passedCheckpointsCount = 0;
     public float m_spentTime = 0f;
@@ -107,12 +106,10 @@ public class NeuralNet {
     {
         m_inputs = GetInputs (raycast);
         m_outputs.Clear ();
-
-        List<Neuron> inputNeurons = new List<Neuron> ();
+        
         List<Neuron> hiddenNeurons = new List<Neuron> ();
         List<Neuron> outputNeurons = new List<Neuron> ();
-
-        inputNeurons = m_network.FindAll (x => x.m_neuronType == Neuron.NeuronType.INPUT);
+        
         hiddenNeurons = m_network.FindAll (x => x.m_neuronType == Neuron.NeuronType.HIDDEN);
         outputNeurons = m_network.FindAll (x => x.m_neuronType == Neuron.NeuronType.OUTPUT);
 
