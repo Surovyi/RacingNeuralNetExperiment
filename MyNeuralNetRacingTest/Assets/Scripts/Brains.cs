@@ -35,7 +35,7 @@ public class Brains : MonoBehaviour {
     private bool m_canGo = false;
     private bool m_textInitialized = false;
 
-    private int m_populationCount = 15;
+    private int m_populationCount = 20;
     protected int m_currentGenomeIndex = 0;
     protected int m_currentGenerationIndex = 0;
 
@@ -167,6 +167,19 @@ public class Brains : MonoBehaviour {
     {
         float fitness = m_waypointsPast;
         return fitness;
+    }
+
+    public void DeactivateWaypoint(Waypoint waypoint)
+    {
+        waypoint.gameObject.SetActive (false);
+        m_waypointsPast++;
+
+        if (m_waypointsPast == m_waypoints.Count) {
+            for (int i = 1; i < m_waypoints.Count; i++) {
+                m_waypoints[i].gameObject.SetActive (true);
+                m_raycaster.m_nextWaypointID = 1;
+            }
+        }
     }
 
     public void NextTestSubject ()

@@ -10,7 +10,7 @@ public class GeneticAlg
     public int m_totalPopulation = 0;
     public int m_generationNumber = 1;
 
-    public float m_mutationRate = 0.15f;
+    public float m_mutationRate = 0.25f;
     public float m_maxPerbetuation = 0.3f;
 
     private int m_genomeID = 0;
@@ -79,7 +79,7 @@ public class GeneticAlg
         return m_population[worstGenome];
     }
 
-    public List <Genome> GetBestGenomes (int howMuch)
+    private List <Genome> GetBestGenomes (int howMuch)
     {
         List<Genome> bestCases = new List<Genome> ();
         bestCases = m_population;
@@ -88,13 +88,15 @@ public class GeneticAlg
         return bestCases;
     }
 
-    public List<Genome> GetWorstGenomes (int howMuch)
+    private List<Genome> GetWorstGenomes (int howMuch)
     {
-        List<Genome> bestCases = new List<Genome> ();
-        bestCases = m_population;
-        bestCases = bestCases.OrderBy (x => x.fitness).Take(howMuch).ToList ();
+        List<Genome> worstCases = new List<Genome> ();
+        worstCases = m_population;
+        worstCases = worstCases.OrderBy (x => x.fitness).ToList ();
+        worstCases.RemoveRange (0, 4);
+        worstCases = worstCases.Take (howMuch).ToList();
 
-        return bestCases;
+        return worstCases;
     }
 
     public int GetCurrentGenomeIndex ()
@@ -146,6 +148,9 @@ public class GeneticAlg
         List<Genome> bestGenomes = new List<Genome> ();
         bestGenomes = GetBestGenomes (4); //tweek this
 
+        List<Genome> worstGenomes = new List<Genome> ();
+        worstGenomes = GetWorstGenomes (2); //tweek this
+
         List<Genome> childrens = new List<Genome> ();
         childrens.Add (bestGenomes[0]);
 
@@ -158,7 +163,7 @@ public class GeneticAlg
         candidates[2] = Mutate (candidates[2]);
         candidates[3] = Mutate (candidates[3]);
 
-        candidates.AddRange (CrossbreedGenomes (bestGenomes[0], bestGenomes[3]));
+        candidates.AddRange (CrossbreedGenomes (bestGenomes[0], worstGenomes[0]));
         candidates[4] = Mutate (candidates[4]);
         candidates[5] = Mutate (candidates[5]);
 
@@ -166,13 +171,13 @@ public class GeneticAlg
         candidates[6] = Mutate (candidates[6]);
         candidates[7] = Mutate (candidates[7]);
 
-        candidates.AddRange (CrossbreedGenomes (bestGenomes[1], bestGenomes[3]));
+        candidates.AddRange (CrossbreedGenomes (bestGenomes[1], bestGenomes[1]));
         candidates[8] = Mutate (candidates[8]);
         candidates[9] = Mutate (candidates[9]);
 
-        //candidates.AddRange (CrossbreedGenomes (bestGenomes[2], bestGenomes[3]));
-        //candidates[10] = Mutate (candidates[10]);
-        //candidates[11] = Mutate (candidates[11]);
+        candidates.AddRange (CrossbreedGenomes (bestGenomes[2], bestGenomes[3]));
+        candidates[10] = Mutate (candidates[10]);
+        candidates[11] = Mutate (candidates[11]);
 
         childrens.AddRange (candidates);
 
