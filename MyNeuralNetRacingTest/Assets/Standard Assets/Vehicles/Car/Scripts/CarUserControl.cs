@@ -65,5 +65,15 @@ namespace UnityStandardAssets.Vehicles.Car
             }
             m_Car.m_Rigidbody.isKinematic = false;
         }
+
+        public float GetCurrentNormalizedSpeed ()
+        {
+            return m_Car.CurrentSpeed / m_Car.MaxSpeed;
+        }
+
+        public float GetCurrentSpeed ()
+        {
+            return m_Car.CurrentSpeed;
+        }
     }
 }

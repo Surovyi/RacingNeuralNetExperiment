@@ -28,7 +28,7 @@ public class NeuralNet {
             Neuron hiddenNeuron = new Neuron (Neuron.NeuronType.HIDDEN);
 
             for (int j = 0; j < numOfInputs; j++) {
-                hiddenNeuron.m_weights.Add (genome.weights[i * numOfHidden + j]);
+                hiddenNeuron.m_weights.Add (genome.weights[i * numOfInputs + j]);
             }
 
             m_network.Add (hiddenNeuron);
@@ -38,14 +38,14 @@ public class NeuralNet {
             Neuron outputNeuron = new Neuron (Neuron.NeuronType.OUTPUT);
 
             for (int j = 0; j < numOfHidden; j++) {
-                outputNeuron.m_weights.Add (genome.weights[i * numOfHidden + j]);
+                outputNeuron.m_weights.Add (genome.weights[i * numOfInputs + j]);
             }
 
             m_network.Add (outputNeuron);
         }
     }
 
-    public void MakeUpdate(Raycast raycast, int pastWaypoints)
+    public void MakeUpdate(Raycast raycast, int pastWaypoints, float normalizedSpeed)
     {
         if (pastWaypoints == m_passedCheckpointsCount) {
             m_spentTime += Time.deltaTime;
@@ -57,7 +57,7 @@ public class NeuralNet {
 
         m_hasFailed = raycast.m_crash;
         if (m_hasFailed == false) {
-            Refresh (raycast);
+            Refresh (raycast, normalizedSpeed);
         }
 
         if (m_spentTime >= m_timeThreshold) {
@@ -74,18 +74,21 @@ public class NeuralNet {
         m_timeThreshold = 4f;
     }
 
-    public List<float> GetInputs(Raycast raycast)
+    public List<float> GetInputs(Raycast raycast, float normalizedSpeed)
     {
         // 8 raycasts
         m_inputs = new List<float> ();
-        m_inputs.Add (raycast.dis_l / raycast.raycastLength);
-        m_inputs.Add (raycast.dis_flO / raycast.raycastLength);
-        m_inputs.Add (raycast.dis_flT / raycast.raycastLength);
-        m_inputs.Add (raycast.dis_f / raycast.raycastLength);
-        m_inputs.Add (raycast.dis_frO / raycast.raycastLength);
-        m_inputs.Add (raycast.dis_frT / raycast.raycastLength);
-        m_inputs.Add (raycast.dis_r / raycast.raycastLength);
-        m_inputs.Add (raycast.dis_b / raycast.raycastLength);
+        m_inputs.Add (raycast.dis_l);
+        m_inputs.Add (raycast.dis_flO);
+        m_inputs.Add (raycast.dis_flT);
+        m_inputs.Add (raycast.dis_f);
+        m_inputs.Add (raycast.dis_frO);
+        m_inputs.Add (raycast.dis_frT);
+        m_inputs.Add (raycast.dis_r);
+        m_inputs.Add (raycast.dis_b);
+
+        // and current speed
+        m_inputs.Add (normalizedSpeed);
 
         return m_inputs;
     }
@@ -102,9 +105,9 @@ public class NeuralNet {
         return inputNeurons;
     }
 
-    private void Refresh (Raycast raycast)
+    private void Refresh (Raycast raycast, float normalizedSpeed)
     {
-        m_inputs = GetInputs (raycast);
+        m_inputs = GetInputs (raycast, normalizedSpeed);
         m_outputs.Clear ();
         
         List<Neuron> hiddenNeurons = new List<Neuron> ();

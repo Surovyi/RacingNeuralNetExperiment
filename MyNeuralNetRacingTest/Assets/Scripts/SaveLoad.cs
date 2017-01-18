@@ -1,14 +1,20 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
-public static class SaveLoad {
+public static class SaveLoad
+{
 
     private static BestAIRun bestAIRun;
 
     private static void FindScriptableObject ()
     {
-        string name = "BestAIRun";
+        string levelId = UnityEngine.SceneManagement.SceneManager.GetActiveScene ().name;
+        Regex regex = new Regex (@"\d+");
+        Match match = regex.Match (levelId);
+        levelId = match.Value;
+        string name = "BestAIRun" + levelId;
         bestAIRun = Resources.Load<BestAIRun> (name);
     }
 

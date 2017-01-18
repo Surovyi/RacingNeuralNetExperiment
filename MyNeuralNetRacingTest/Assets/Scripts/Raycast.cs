@@ -23,6 +23,8 @@ public class Raycast : MonoBehaviour {
     private UnityStandardAssets.Vehicles.Car.CarUserControl m_carControl;
     private Brains m_brains;
 
+    private Dictionary<string, float> m_colliderInfo = new Dictionary<string, float> ();
+
     // Use this for initialization
     void Start () {
         m_carControl = GetComponent<UnityStandardAssets.Vehicles.Car.CarUserControl> ();
@@ -48,6 +50,10 @@ public class Raycast : MonoBehaviour {
         dis_frT = 0.0f;
         dis_r = 0.0f;
         dis_b = 0.0f;
+
+        m_colliderInfo.Add ("Untagged", 0f);
+        m_colliderInfo.Add ("Wall", 1f);
+        m_colliderInfo.Add ("Waypoint", 2f);
     }
 	
 	// Update is called once per frame
@@ -90,14 +96,23 @@ public class Raycast : MonoBehaviour {
         Physics.Linecast (origin, back, out hit_b, layerMask);
         Debug.DrawLine (origin, back, Color.white);
 
-        dis_l = hit_l.distance;
-        dis_flO = hit_flO.distance;
-        dis_flT = hit_flT.distance;
-        dis_f = hit_f.distance;
-        dis_frO = hit_frO.distance;
-        dis_frT = hit_frT.distance;
-        dis_r = hit_r.distance;
-        dis_b = hit_b.distance;
+        dis_l = (hit_l.distance / raycastLength) + GetHitType(hit_l);
+        dis_flO = (hit_flO.distance / raycastLength) + GetHitType (hit_flO);
+        dis_flT = (hit_flT.distance / raycastLength) + GetHitType (hit_flT);
+        dis_f = (hit_f.distance / raycastLength) + GetHitType (hit_f);
+        dis_frO = (hit_frO.distance / raycastLength) + GetHitType (hit_frO);
+        dis_frT = (hit_frT.distance / raycastLength) + GetHitType (hit_frT);
+        dis_r = (hit_r.distance / raycastLength) + GetHitType (hit_r);
+        dis_b = (hit_b.distance / raycastLength) + GetHitType (hit_b);
+    }
+
+    private float GetHitType (RaycastHit hit)
+    {
+        if (hit.collider == null) {
+            return 0f;
+        }
+
+        return m_colliderInfo[hit.collider.tag];
     }
 
     private void OnTriggerEnter (Collider other)

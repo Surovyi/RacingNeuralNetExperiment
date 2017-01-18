@@ -16,6 +16,7 @@ public class Brains : MonoBehaviour {
 	private Text h;
 	private Text v;
 	private Text time;
+    private Text speed;
 
     public bool loadBestGenome = false;
 
@@ -24,7 +25,7 @@ public class Brains : MonoBehaviour {
     private Raycast m_raycaster;
     protected UnityStandardAssets.Vehicles.Car.CarUserControl m_carControl;
 
-    private string[] uiNames = { "Generation Num", "Genome Num", "Best Fit Num", "Fitness Num", "H Num", "V Num", "Time Num" };
+    private string[] uiNames = { "Generation Num", "Genome Num", "Best Fit Num", "Fitness Num", "H Num", "V Num", "Time Num", "Speed Num" };
 
     protected float m_currentFitness = 0f;
     protected float m_bestFitness = 0f;
@@ -65,17 +66,17 @@ public class Brains : MonoBehaviour {
 
         if (m_geneticAlg == null) {
             m_geneticAlg = new GeneticAlg ();
-            int totalWeights = 8 * 8 + 8 * 2;
+            int totalWeights = 9 * 12 + 12 * 2;
             m_geneticAlg.GeneratePopulation (m_populationCount, totalWeights);
 
             m_neuralNet = new NeuralNet ();
             if (loadBestGenome == false) {
                 GeneticAlg.Genome genome = m_geneticAlg.GetNextGenome ();
                 m_currentGenomeIndex = m_geneticAlg.GetCurrentGenomeIndex ();
-                m_neuralNet.CreateNetFromGenome (genome, 8, 8, 2);
+                m_neuralNet.CreateNetFromGenome (genome, 9, 12, 2);
             } else {
                 GeneticAlg.Genome genome = SaveLoad.LoadRun ();
-                m_neuralNet.CreateNetFromGenome (genome, 8, 8, 2);
+                m_neuralNet.CreateNetFromGenome (genome, 9, 12, 2);
                 m_currentFitness = genome.fitness;
             }
 
@@ -123,7 +124,7 @@ public class Brains : MonoBehaviour {
             return;
         }
 
-        m_neuralNet.MakeUpdate (m_raycaster, m_waypointsPast);
+        m_neuralNet.MakeUpdate (m_raycaster, m_waypointsPast, m_carControl.GetCurrentNormalizedSpeed());
 
         m_carControl.H = m_neuralNet.m_outputs[0];
         m_carControl.V = m_neuralNet.m_outputs[1];
@@ -174,10 +175,10 @@ public class Brains : MonoBehaviour {
         waypoint.gameObject.SetActive (false);
         m_waypointsPast++;
 
-        if (m_waypointsPast == m_waypoints.Count) {
-            for (int i = 1; i < m_waypoints.Count; i++) {
+        if (m_waypointsPast % m_waypoints.Count == 0) {
+            for (int i = 0; i < m_waypoints.Count; i++) {
                 m_waypoints[i].gameObject.SetActive (true);
-                m_raycaster.m_nextWaypointID = 1;
+                m_raycaster.m_nextWaypointID = 0;
             }
         }
     }
@@ -187,7 +188,7 @@ public class Brains : MonoBehaviour {
         m_currentFitness = 0.0f;
 
         GeneticAlg.Genome genome = m_geneticAlg.GetNextGenome ();
-        m_neuralNet.CreateNetFromGenome (genome, 8, 8, 2);
+        m_neuralNet.CreateNetFromGenome (genome, 9, 12, 2);
         m_neuralNet.ClearFailure ();
 
         transform.position = m_defaultPosition;
@@ -209,6 +210,7 @@ public class Brains : MonoBehaviour {
             h = canvas.FindChild (uiNames[4]).GetComponent<Text> ();
             v = canvas.FindChild (uiNames[5]).GetComponent<Text> ();
             time = canvas.FindChild (uiNames[6]).GetComponent<Text> ();
+            speed = canvas.FindChild (uiNames[7]).GetComponent<Text> ();
         }
 
         m_textInitialized = true;
@@ -224,6 +226,7 @@ public class Brains : MonoBehaviour {
 			h.text = m_carControl.H.ToString ();
 			v.text = m_neuralNet.m_outputs[1].ToString ();
         }
-		time.text = m_neuralNet.m_spentTime.ToString();
+		time.text = m_neuralNet.m_spentTime.ToString("0.00");
+        speed.text = m_carControl.GetCurrentSpeed ().ToString("0.00");
     }
 }
