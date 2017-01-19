@@ -26,6 +26,7 @@ public class Brains : MonoBehaviour {
     protected UnityStandardAssets.Vehicles.Car.CarUserControl m_carControl;
 
     private string[] uiNames = { "Generation Num", "Genome Num", "Best Fit Num", "Fitness Num", "H Num", "V Num", "Time Num", "Speed Num" };
+	private int[] neuronsMap = { 9, 11, 11, 2 }; //First number - input neurons count, last one - output, in between - hidden neurons.
 
     protected float m_currentFitness = 0f;
     protected float m_bestFitness = 0f;
@@ -66,17 +67,21 @@ public class Brains : MonoBehaviour {
 
         if (m_geneticAlg == null) {
             m_geneticAlg = new GeneticAlg ();
-            int totalWeights = 9 * 12 + 12 * 2;
+
+            int totalWeights = 0;
+			for (int i = 0; i < neuronsMap.Length - 1; i++) {
+				totalWeights += neuronsMap [i] * neuronsMap [i + 1];
+			}
             m_geneticAlg.GeneratePopulation (m_populationCount, totalWeights);
 
             m_neuralNet = new NeuralNet ();
             if (loadBestGenome == false) {
                 GeneticAlg.Genome genome = m_geneticAlg.GetNextGenome ();
                 m_currentGenomeIndex = m_geneticAlg.GetCurrentGenomeIndex ();
-                m_neuralNet.CreateNetFromGenome (genome, 9, 12, 2);
+				m_neuralNet.CreateNetFromGenome (genome, neuronsMap);
             } else {
                 GeneticAlg.Genome genome = SaveLoad.LoadRun ();
-                m_neuralNet.CreateNetFromGenome (genome, 9, 12, 2);
+				m_neuralNet.CreateNetFromGenome (genome, neuronsMap);
                 m_currentFitness = genome.fitness;
             }
 
@@ -188,7 +193,7 @@ public class Brains : MonoBehaviour {
         m_currentFitness = 0.0f;
 
         GeneticAlg.Genome genome = m_geneticAlg.GetNextGenome ();
-        m_neuralNet.CreateNetFromGenome (genome, 9, 12, 2);
+		m_neuralNet.CreateNetFromGenome (genome, neuronsMap);
         m_neuralNet.ClearFailure ();
 
         transform.position = m_defaultPosition;

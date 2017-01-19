@@ -19,26 +19,39 @@ public class NeuralNet {
     public float m_spentTime = 0f;
     private float m_timeThreshold = 4f;
 
-    public void CreateNetFromGenome (GeneticAlg.Genome genome, int numOfInputs, int numOfHidden, int numOfOutputs)
+    public void CreateNetFromGenome (GeneticAlg.Genome genome, int[] neuralMap)
     {
         m_network.Clear ();
         m_network.AddRange (GetInputNeurons ());
 
-        for (int i = 0; i < numOfHidden; i++) {
-            Neuron hiddenNeuron = new Neuron (Neuron.NeuronType.HIDDEN);
+		int numOfInputs = neuralMap [0];
+		int hiddenLayersCount = neuralMap.Length - 2;
 
-            for (int j = 0; j < numOfInputs; j++) {
-                hiddenNeuron.m_weights.Add (genome.weights[i * numOfInputs + j]);
-            }
+		for (int layer = 0; layer < hiddenLayersCount; layer++) {
+			int numOfHidden = neuralMap [layer + 1];
+			for (int i = 0; i < numOfHidden; i++) {
+				Neuron hiddenNeuron = new Neuron (Neuron.NeuronType.HIDDEN);
 
-            m_network.Add (hiddenNeuron);
-        }
+				for (int j = 0; j < numOfInputs; j++) {
+					int weightIndex = (layer + 1) * i + j;
+					Debug.Log ("Index: " + weightIndex);
+					hiddenNeuron.m_weights.Add (genome.weights [weightIndex]);
+				}
 
-        for (int i = numOfHidden; i < numOfHidden + numOfOutputs; i++) {
+				m_network.Add (hiddenNeuron);
+			}
+		}
+
+		Debug.Log ("Lel");
+		int numOfHiddenNeurons = neuralMap [neuralMap.Length - 2];
+		int numOfOutputNeurons = neuralMap [neuralMap.Length - 1];
+		for (int i = 0; i < numOfOutputNeurons; i++) {
             Neuron outputNeuron = new Neuron (Neuron.NeuronType.OUTPUT);
 
-            for (int j = 0; j < numOfHidden; j++) {
-                outputNeuron.m_weights.Add (genome.weights[i * numOfInputs + j]);
+			for (int j = 0; j < numOfHiddenNeurons; j++) {
+				int weightIndex = i * numOfInputs + j;
+				Debug.Log ("Index: " + weightIndex);
+				outputNeuron.m_weights.Add (genome.weights[weightIndex]);
             }
 
             m_network.Add (outputNeuron);
