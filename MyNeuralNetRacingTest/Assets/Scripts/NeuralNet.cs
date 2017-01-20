@@ -26,39 +26,36 @@ public class NeuralNet {
 
 		int numOfInputs = neuralMap [0];
 		int hiddenLayersCount = neuralMap.Length - 2;
-
-		for (int layer = 0; layer < hiddenLayersCount; layer++) {
-			int numOfHidden = neuralMap [layer + 1];
-			for (int i = 0; i < numOfHidden; i++) {
-				Neuron hiddenNeuron = new Neuron (Neuron.NeuronType.HIDDEN);
-
-				for (int j = 0; j < numOfInputs; j++) {
-					int weightIndex = (layer + 1) * i + j;
-					Debug.Log ("Index: " + weightIndex);
-					hiddenNeuron.m_weights.Add (genome.weights [weightIndex]);
+		int synapseIndex = 0;
+		for (int layer = 1; layer <= hiddenLayersCount; layer++) {
+			int neuronsInCurrentLayer = neuralMap [layer];
+			for (int i = 0; i < neuronsInCurrentLayer; i++) {
+				Neuron hiddenNeuron = new Neuron (Neuron.NeuronType.HIDDEN, layer);
+				int neuronsInPreviousLayer = neuralMap [layer - 1];
+				for (int j = 0; j < neuronsInPreviousLayer; j++) {
+					hiddenNeuron.m_weights.Add (genome.weights [synapseIndex]);
+					synapseIndex++;
 				}
-
 				m_network.Add (hiddenNeuron);
 			}
 		}
 
-		Debug.Log ("Lel");
 		int numOfHiddenNeurons = neuralMap [neuralMap.Length - 2];
 		int numOfOutputNeurons = neuralMap [neuralMap.Length - 1];
+
 		for (int i = 0; i < numOfOutputNeurons; i++) {
-            Neuron outputNeuron = new Neuron (Neuron.NeuronType.OUTPUT);
+			Neuron outputNeuron = new Neuron (Neuron.NeuronType.OUTPUT, neuralMap.Length - 1);
 
 			for (int j = 0; j < numOfHiddenNeurons; j++) {
 				int weightIndex = i * numOfInputs + j;
-				Debug.Log ("Index: " + weightIndex);
-				outputNeuron.m_weights.Add (genome.weights[weightIndex]);
+				outputNeuron.m_weights.Add (genome.weights[synapseIndex]);
+				synapseIndex++;
             }
-
             m_network.Add (outputNeuron);
         }
     }
 
-    public void MakeUpdate(Raycast raycast, int pastWaypoints, float normalizedSpeed)
+	public void MakeUpdate(Raycast raycast, int[] neuralMap, int pastWaypoints, float normalizedSpeed)
     {
         if (pastWaypoints == m_passedCheckpointsCount) {
             m_spentTime += Time.deltaTime;
@@ -70,7 +67,7 @@ public class NeuralNet {
 
         m_hasFailed = raycast.m_crash;
         if (m_hasFailed == false) {
-            Refresh (raycast, normalizedSpeed);
+			Refresh (raycast, neuralMap, normalizedSpeed);
         }
 
         if (m_spentTime >= m_timeThreshold) {
@@ -110,7 +107,7 @@ public class NeuralNet {
     {
         List<Neuron> inputNeurons = new List<Neuron> ();
         for (int i = 0; i < m_inputs.Count; i++) {
-            Neuron neuron = new Neuron (Neuron.NeuronType.INPUT);
+            Neuron neuron = new Neuron (Neuron.NeuronType.INPUT, 0);
             neuron.m_inputValue = m_inputs[i];
             inputNeurons.Add (neuron);
         }
@@ -118,33 +115,39 @@ public class NeuralNet {
         return inputNeurons;
     }
 
-    private void Refresh (Raycast raycast, float normalizedSpeed)
+	private void Refresh (Raycast raycast, int[] neuralMap, float normalizedSpeed)
     {
         m_inputs = GetInputs (raycast, normalizedSpeed);
         m_outputs.Clear ();
         
-        List<Neuron> hiddenNeurons = new List<Neuron> ();
-        List<Neuron> outputNeurons = new List<Neuron> ();
-        
-        hiddenNeurons = m_network.FindAll (x => x.m_neuronType == Neuron.NeuronType.HIDDEN);
-        outputNeurons = m_network.FindAll (x => x.m_neuronType == Neuron.NeuronType.OUTPUT);
+		List<Neuron> inputLayerNeurons = new List<Neuron> ();
+        List<Neuron> previousLayerNeurons = new List<Neuron> ();
+        List<Neuron> layerNeurons = new List<Neuron> ();
 
-        for (int i = 0; i < hiddenNeurons.Count; i++) {
-            float value = 0f;
-            for (int j = 0; j < m_inputs.Count; j++) {
-                value += m_inputs[j] * hiddenNeurons[i].m_weights[j];
-            }
-            hiddenNeurons[i].m_inputValue = value;
-        }
+		inputLayerNeurons = GetInputNeurons ();
+		for (int layerIndex = 1; layerIndex < neuralMap.Length; layerIndex++) {
+			if (layerIndex == 1) {
+				previousLayerNeurons = inputLayerNeurons;
+			} else {
+				previousLayerNeurons = m_network.FindAll (x => x.m_layerID == (layerIndex - 1));
+			}
+			layerNeurons = m_network.FindAll (x => x.m_layerID == layerIndex);
 
-        for (int i = 0; i < outputNeurons.Count; i++) {
-            float value = 0f;
-            for (int j = 0; j < hiddenNeurons.Count; j++) {
-                value += hiddenNeurons[j].GetOutputValue () * outputNeurons[i].m_weights[j] ;
-            }
-            outputNeurons[i].m_inputValue = value;
-            m_outputs.Add (outputNeurons[i].GetOutputValue ());
-        }
+
+
+			for (int i = 0; i < layerNeurons.Count; i++) {
+				float value = 0f;
+				for (int j = 0; j < previousLayerNeurons.Count; j++) {
+					value += previousLayerNeurons [j].GetOutputValue() * layerNeurons [i].m_weights [j];
+				}
+				layerNeurons [i].m_inputValue = value;
+			}
+		}
+
+		for (int k = 0; k < neuralMap [neuralMap.Length - 1]; k++) {
+			m_outputs.Add (layerNeurons [k].GetOutputValue());
+		}
+		Debug.Log ("1: " + m_outputs [0] + " || 2: " + m_outputs [1] + " || Count: " + m_outputs.Count);
     }
 
     public class Neuron
@@ -152,12 +155,14 @@ public class NeuralNet {
         public float m_inputValue;
         public float m_outputValue;
         public NeuronType m_neuronType;
+		public int m_layerID;
 
         public List<float> m_weights = new List<float> ();
 
-        public Neuron (NeuronType neuronType)
+		public Neuron (NeuronType neuronType, int layerID)
         {
             m_neuronType = neuronType;
+			m_layerID = layerID;
         }
 
         private float Sigmoid (float x)

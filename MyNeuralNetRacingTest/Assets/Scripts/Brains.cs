@@ -129,7 +129,7 @@ public class Brains : MonoBehaviour {
             return;
         }
 
-        m_neuralNet.MakeUpdate (m_raycaster, m_waypointsPast, m_carControl.GetCurrentNormalizedSpeed());
+		m_neuralNet.MakeUpdate (m_raycaster, neuronsMap, m_waypointsPast, m_carControl.GetCurrentNormalizedSpeed());
 
         m_carControl.H = m_neuralNet.m_outputs[0];
         m_carControl.V = m_neuralNet.m_outputs[1];
