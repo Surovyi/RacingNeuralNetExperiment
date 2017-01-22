@@ -26,7 +26,7 @@ public class Brains : MonoBehaviour {
     protected UnityStandardAssets.Vehicles.Car.CarUserControl m_carControl;
 
     private string[] uiNames = { "Generation Num", "Genome Num", "Best Fit Num", "Fitness Num", "H Num", "V Num", "Time Num", "Speed Num" };
-	private int[] neuronsMap = { 9, 11, 11, 2 }; //First number - input neurons count, last one - output, in between - hidden neurons.
+	private int[] neuronsMap = { 9, 13, 15, 2 }; //First number - input neurons count, last one - output, in between - hidden neurons.
 
     protected float m_currentFitness = 0f;
     protected float m_bestFitness = 0f;
@@ -183,7 +183,7 @@ public class Brains : MonoBehaviour {
         if (m_waypointsPast % m_waypoints.Count == 0) {
             for (int i = 0; i < m_waypoints.Count; i++) {
                 m_waypoints[i].gameObject.SetActive (true);
-                m_raycaster.m_nextWaypointID = 0;
+                m_raycaster.m_pastWaypointID = 0;
             }
         }
     }
@@ -233,5 +233,14 @@ public class Brains : MonoBehaviour {
         }
 		time.text = m_neuralNet.m_spentTime.ToString("0.00");
         speed.text = m_carControl.GetCurrentSpeed ().ToString("0.00");
+    }
+
+    private void OnApplicationQuit()
+    {
+        if (m_currentFitness > m_bestFitness && !loadBestGenome) {
+            m_bestFitness = m_currentFitness;
+            SaveLoad.SaveRun (m_geneticAlg.GetCurrentGenome ());
+            Debug.Log ("Saved On Exit");
+        }
     }
 }

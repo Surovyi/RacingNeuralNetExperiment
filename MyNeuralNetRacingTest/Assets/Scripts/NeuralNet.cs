@@ -62,7 +62,7 @@ public class NeuralNet {
         } else {
             m_passedCheckpointsCount = pastWaypoints;
             m_spentTime = Time.deltaTime;
-            m_timeThreshold += 0.5f;
+            m_timeThreshold += 0.2f;
         }
 
         m_hasFailed = raycast.m_crash;
@@ -147,7 +147,6 @@ public class NeuralNet {
 		for (int k = 0; k < neuralMap [neuralMap.Length - 1]; k++) {
 			m_outputs.Add (layerNeurons [k].GetOutputValue());
 		}
-		Debug.Log ("1: " + m_outputs [0] + " || 2: " + m_outputs [1] + " || Count: " + m_outputs.Count);
     }
 
     public class Neuron

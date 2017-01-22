@@ -15,7 +15,8 @@ public class Raycast : MonoBehaviour {
 
     public LayerMask layerMask;
 
-    public int m_nextWaypointID = 0;
+    public int m_pastWaypointID = -1;
+    private int m_waypointThreshold = 16;
 
     private Vector3 origin, left, frontLeftOne, frontLeftTwo, front, frontRightOne, frontRightTwo, right, back;
     private float heading;
@@ -125,8 +126,8 @@ public class Raycast : MonoBehaviour {
                 return;
             }
             Waypoint waypoint = m_brains.m_waypoints.First (x => x.ID == other.GetComponent<Waypoint> ().ID);
-            if (waypoint.ID == m_nextWaypointID) {
-                m_nextWaypointID++;
+            if (waypoint.ID > m_pastWaypointID && waypoint.ID - m_pastWaypointID < m_waypointThreshold) {
+                m_pastWaypointID++;
                 m_brains.DeactivateWaypoint (waypoint);
             }
         }
@@ -135,6 +136,6 @@ public class Raycast : MonoBehaviour {
     public void ResetCrash ()
     {
         m_crash = false;
-        m_nextWaypointID = 0;
+        m_pastWaypointID = 0;
     }
 }
