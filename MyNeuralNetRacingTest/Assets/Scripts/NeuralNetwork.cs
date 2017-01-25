@@ -2,7 +2,7 @@
 using UnityEngine;
 
 [RequireComponent (typeof (UnityStandardAssets.Vehicles.Car.CarUserControl))]
-public class NeuralNet {
+public class NeuralNetwork {
 
     // http://stevenmiller888.github.io/mind-how-to-build-a-neural-network/
     // http://nn.cs.utexas.edu/downloads/papers/stanley.ec02.pdf
@@ -19,7 +19,7 @@ public class NeuralNet {
     public float m_spentTime = 0f;
     private float m_timeThreshold = 4f;
 
-    public void CreateNetFromGenome (GeneticAlg.Genome genome, int[] neuralMap)
+    public void CreateNetFromGenome (GeneticAlgorithm.Genome genome, int[] neuralMap)
     {
         m_network.Clear ();
         m_network.AddRange (GetInputNeurons ());

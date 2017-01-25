@@ -5,5 +5,5 @@ using UnityEngine;
 [CreateAssetMenu (fileName = "BestAIRun", menuName = "BestAIRun")]
 public class BestAIRun : ScriptableObject {
 
-    public GeneticAlg.Genome genomeToSave;
+    public GeneticAlgorithm.Genome genomeToSave;
 }

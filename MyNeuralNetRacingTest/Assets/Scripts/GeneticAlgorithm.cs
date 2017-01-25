@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class GeneticAlg
+public class GeneticAlgorithm
 {
 
     public int m_currentGenome = -1;
@@ -163,21 +163,21 @@ public class GeneticAlg
         candidates[2] = Mutate (candidates[2]);
         candidates[3] = Mutate (candidates[3]);
 
-        candidates.AddRange (CrossbreedGenomes (bestGenomes[0], worstGenomes[0]));
-        candidates[4] = Mutate (candidates[4]);
-        candidates[5] = Mutate (candidates[5]);
-
         candidates.AddRange (CrossbreedGenomes (bestGenomes[1], bestGenomes[2]));
-        candidates[6] = Mutate (candidates[6]);
-        candidates[7] = Mutate (candidates[7]);
+        candidates[4] = Mutate (candidates[6]);
+        candidates[5] = Mutate (candidates[7]);
 
         candidates.AddRange (CrossbreedGenomes (bestGenomes[1], bestGenomes[1]));
-        candidates[8] = Mutate (candidates[8]);
-        candidates[9] = Mutate (candidates[9]);
+        candidates[6] = Mutate (candidates[8]);
+        candidates[7] = Mutate (candidates[9]);
 
         candidates.AddRange (CrossbreedGenomes (bestGenomes[2], bestGenomes[3]));
-        candidates[10] = Mutate (candidates[10]);
-        candidates[11] = Mutate (candidates[11]);
+        candidates[8] = Mutate (candidates[10]);
+        candidates[9] = Mutate (candidates[11]);
+
+        candidates.AddRange (CrossbreedGenomes (bestGenomes[0], worstGenomes[0]));
+        candidates[10] = Mutate (candidates[4]);
+        candidates[11] = Mutate (candidates[5]);
 
         childrens.AddRange (candidates);
 

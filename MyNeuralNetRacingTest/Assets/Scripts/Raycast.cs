@@ -97,14 +97,14 @@ public class Raycast : MonoBehaviour {
         Physics.Linecast (origin, back, out hit_b, layerMask);
         Debug.DrawLine (origin, back, Color.white);
 
-        dis_l = (hit_l.distance / raycastLength) + GetHitType(hit_l);
-        dis_flO = (hit_flO.distance / raycastLength) + GetHitType (hit_flO);
-        dis_flT = (hit_flT.distance / raycastLength) + GetHitType (hit_flT);
-        dis_f = (hit_f.distance / raycastLength) + GetHitType (hit_f);
-        dis_frO = (hit_frO.distance / raycastLength) + GetHitType (hit_frO);
-        dis_frT = (hit_frT.distance / raycastLength) + GetHitType (hit_frT);
-        dis_r = (hit_r.distance / raycastLength) + GetHitType (hit_r);
-        dis_b = (hit_b.distance / raycastLength) + GetHitType (hit_b);
+        dis_l = (hit_l.distance / raycastLength);
+        dis_flO = (hit_flO.distance / raycastLength);
+        dis_flT = (hit_flT.distance / raycastLength);
+        dis_f = (hit_f.distance / raycastLength);
+        dis_frO = (hit_frO.distance / raycastLength);
+        dis_frT = (hit_frT.distance / raycastLength);
+        dis_r = (hit_r.distance / raycastLength);
+        dis_b = (hit_b.distance / raycastLength);
     }
 
     private float GetHitType (RaycastHit hit)

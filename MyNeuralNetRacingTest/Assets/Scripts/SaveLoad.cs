@@ -18,13 +18,13 @@ public static class SaveLoad
         bestAIRun = Resources.Load<BestAIRun> (name);
     }
 
-    public static void SaveRun (GeneticAlg.Genome genome)
+    public static void SaveRun (GeneticAlgorithm.Genome genome)
     {
         FindScriptableObject ();
         bestAIRun.genomeToSave = genome;
     }
 
-    public static GeneticAlg.Genome LoadRun ()
+    public static GeneticAlgorithm.Genome LoadRun ()
     {
         FindScriptableObject ();
         if (bestAIRun.genomeToSave == null) {

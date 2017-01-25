@@ -8,7 +8,6 @@ using UnityEngine.UI;
 public class Brains : MonoBehaviour {
 	public static Brains instance;
 
-
 	private Text generation;
 	private Text genome;
 	private Text bestFitness;
@@ -20,13 +19,13 @@ public class Brains : MonoBehaviour {
 
     public bool loadBestGenome = false;
 
-    private NeuralNet m_neuralNet;
-    private GeneticAlg m_geneticAlg;
+    private NeuralNetwork m_neuralNet;
+    private GeneticAlgorithm m_geneticAlg;
     private Raycast m_raycaster;
     protected UnityStandardAssets.Vehicles.Car.CarUserControl m_carControl;
 
     private string[] uiNames = { "Generation Num", "Genome Num", "Best Fit Num", "Fitness Num", "H Num", "V Num", "Time Num", "Speed Num" };
-	private int[] neuronsMap = { 9, 13, 15, 2 }; //First number - input neurons count, last one - output, in between - hidden neurons.
+	private int[] m_neuralTopology = { 9, 30, 30, 2 }; //First number - input neurons count, last one - output, in between - hidden neurons.
 
     protected float m_currentFitness = 0f;
     protected float m_bestFitness = 0f;
@@ -37,7 +36,7 @@ public class Brains : MonoBehaviour {
     private bool m_canGo = false;
     private bool m_textInitialized = false;
 
-    private int m_populationCount = 20;
+    private int m_populationCount = 18;
     protected int m_currentGenomeIndex = 0;
     protected int m_currentGenerationIndex = 0;
 
@@ -66,22 +65,22 @@ public class Brains : MonoBehaviour {
         InitializeText ();
 
         if (m_geneticAlg == null) {
-            m_geneticAlg = new GeneticAlg ();
+            m_geneticAlg = new GeneticAlgorithm ();
 
             int totalWeights = 0;
-			for (int i = 0; i < neuronsMap.Length - 1; i++) {
-				totalWeights += neuronsMap [i] * neuronsMap [i + 1];
+			for (int i = 0; i < m_neuralTopology.Length - 1; i++) {
+				totalWeights += m_neuralTopology [i] * m_neuralTopology [i + 1];
 			}
             m_geneticAlg.GeneratePopulation (m_populationCount, totalWeights);
 
-            m_neuralNet = new NeuralNet ();
+            m_neuralNet = new NeuralNetwork ();
             if (loadBestGenome == false) {
-                GeneticAlg.Genome genome = m_geneticAlg.GetNextGenome ();
+                GeneticAlgorithm.Genome genome = m_geneticAlg.GetNextGenome ();
                 m_currentGenomeIndex = m_geneticAlg.GetCurrentGenomeIndex ();
-				m_neuralNet.CreateNetFromGenome (genome, neuronsMap);
+				m_neuralNet.CreateNetFromGenome (genome, m_neuralTopology);
             } else {
-                GeneticAlg.Genome genome = SaveLoad.LoadRun ();
-				m_neuralNet.CreateNetFromGenome (genome, neuronsMap);
+                GeneticAlgorithm.Genome genome = SaveLoad.LoadRun ();
+				m_neuralNet.CreateNetFromGenome (genome, m_neuralTopology);
                 m_currentFitness = genome.fitness;
             }
 
@@ -129,7 +128,7 @@ public class Brains : MonoBehaviour {
             return;
         }
 
-		m_neuralNet.MakeUpdate (m_raycaster, neuronsMap, m_waypointsPast, m_carControl.GetCurrentNormalizedSpeed());
+		m_neuralNet.MakeUpdate (m_raycaster, m_neuralTopology, m_waypointsPast, m_carControl.GetCurrentNormalizedSpeed());
 
         m_carControl.H = m_neuralNet.m_outputs[0];
         m_carControl.V = m_neuralNet.m_outputs[1];
@@ -192,8 +191,8 @@ public class Brains : MonoBehaviour {
     {
         m_currentFitness = 0.0f;
 
-        GeneticAlg.Genome genome = m_geneticAlg.GetNextGenome ();
-		m_neuralNet.CreateNetFromGenome (genome, neuronsMap);
+        GeneticAlgorithm.Genome genome = m_geneticAlg.GetNextGenome ();
+		m_neuralNet.CreateNetFromGenome (genome, m_neuralTopology);
         m_neuralNet.ClearFailure ();
 
         transform.position = m_defaultPosition;
