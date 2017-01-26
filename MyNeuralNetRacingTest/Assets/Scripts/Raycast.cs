@@ -136,6 +136,6 @@ public class Raycast : MonoBehaviour {
     public void ResetCrash ()
     {
         m_crash = false;
-        m_pastWaypointID = 0;
+        m_pastWaypointID = -1;
     }
 }

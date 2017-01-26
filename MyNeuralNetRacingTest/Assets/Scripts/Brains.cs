@@ -80,6 +80,11 @@ public class Brains : MonoBehaviour {
 				m_neuralNet.CreateNetFromGenome (genome, m_neuralTopology);
             } else {
                 GeneticAlgorithm.Genome genome = SaveLoad.LoadRun ();
+                if (genome.weights.Count == 0) {
+                    Debug.LogError ("There are nothing to load. Uncheck 'Load Best Genome' option.");
+                    Debug.Break ();
+                    return;
+                }
 				m_neuralNet.CreateNetFromGenome (genome, m_neuralTopology);
                 m_currentFitness = genome.fitness;
             }
@@ -182,7 +187,7 @@ public class Brains : MonoBehaviour {
         if (m_waypointsPast % m_waypoints.Count == 0) {
             for (int i = 0; i < m_waypoints.Count; i++) {
                 m_waypoints[i].gameObject.SetActive (true);
-                m_raycaster.m_pastWaypointID = 0;
+                m_raycaster.m_pastWaypointID = -1;
             }
         }
     }
