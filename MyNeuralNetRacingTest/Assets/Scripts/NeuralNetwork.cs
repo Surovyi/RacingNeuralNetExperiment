@@ -55,7 +55,7 @@ public class NeuralNetwork {
         }
     }
 
-	public void MakeUpdate(Raycast raycast, int[] neuralMap, int pastWaypoints, float normalizedSpeed)
+	public void MakeUpdate(Eyes raycast, int[] neuralMap, int pastWaypoints, float normalizedSpeed)
     {
         if (pastWaypoints == m_passedCheckpointsCount) {
             m_spentTime += Time.deltaTime;
@@ -84,7 +84,7 @@ public class NeuralNetwork {
         m_timeThreshold = 4f;
     }
 
-    public List<float> GetInputs(Raycast raycast, float normalizedSpeed)
+    public List<float> GetInputs(Eyes raycast, float normalizedSpeed)
     {
         // 8 raycasts
         m_inputs = new List<float> ();
@@ -115,7 +115,7 @@ public class NeuralNetwork {
         return inputNeurons;
     }
 
-	private void Refresh (Raycast raycast, int[] neuralMap, float normalizedSpeed)
+	private void Refresh (Eyes raycast, int[] neuralMap, float normalizedSpeed)
     {
         m_inputs = GetInputs (raycast, normalizedSpeed);
         m_outputs.Clear ();

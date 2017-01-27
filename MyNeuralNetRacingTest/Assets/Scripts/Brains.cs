@@ -21,7 +21,7 @@ public class Brains : MonoBehaviour {
 
     private NeuralNetwork m_neuralNet;
     private GeneticAlgorithm m_geneticAlg;
-    private Raycast m_raycaster;
+    private Eyes m_raycaster;
     protected UnityStandardAssets.Vehicles.Car.CarUserControl m_carControl;
 
     private string[] uiNames = { "Generation Num", "Genome Num", "Best Fit Num", "Fitness Num", "H Num", "V Num", "Time Num", "Speed Num" };
@@ -60,7 +60,7 @@ public class Brains : MonoBehaviour {
     {
         m_carControl = FindObjectOfType<UnityStandardAssets.Vehicles.Car.CarUserControl> ();
         m_waypoints = FindObjectsOfType<Waypoint> ().ToList ();
-        m_raycaster = m_carControl.GetComponent<Raycast> ();
+        m_raycaster = m_carControl.GetComponent<Eyes> ();
 
         InitializeText ();
 
@@ -122,7 +122,7 @@ public class Brains : MonoBehaviour {
         InitializeText ();
         m_carControl = FindObjectOfType<UnityStandardAssets.Vehicles.Car.CarUserControl> ();
         m_waypoints = FindObjectsOfType<Waypoint> ().ToList ();
-        m_raycaster = m_carControl.GetComponent<Raycast> ();
+        m_raycaster = m_carControl.GetComponent<Eyes> ();
 
         StartCoroutine (WaitGenomeStart ());
     }
