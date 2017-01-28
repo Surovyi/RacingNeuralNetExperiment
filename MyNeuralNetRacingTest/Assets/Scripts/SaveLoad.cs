@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using UnityEditor;
 using UnityEngine;
 
 public static class SaveLoad
@@ -22,6 +23,7 @@ public static class SaveLoad
     {
         FindScriptableObject ();
         bestAIRun.genomeToSave = genome;
+        EditorUtility.SetDirty (bestAIRun);
     }
 
     public static GeneticAlgorithm.Genome LoadRun ()
