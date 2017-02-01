@@ -8,15 +8,6 @@ using UnityEngine.UI;
 public class Brains : MonoBehaviour {
 	public static Brains instance;
 
-	private Text generation;
-	private Text genome;
-	private Text bestFitness;
-	private Text fitness;
-	private Text h;
-	private Text v;
-	private Text time;
-    private Text speed;
-
     public bool loadBestGenome = false;
 
     private NeuralNetwork m_neuralNet;
@@ -24,17 +15,17 @@ public class Brains : MonoBehaviour {
     private Eyes m_raycaster;
     protected UnityStandardAssets.Vehicles.Car.CarUserControl m_carControl;
 
-    private string[] uiNames = { "Generation Num", "Genome Num", "Best Fit Num", "Fitness Num", "H Num", "V Num", "Time Num", "Speed Num" };
+	public UnityEngine.Events.UnityAction ChangeSubject;
+	    
 	private int[] m_neuralTopology = { 9, 30, 30, 2 }; //First number - input neurons count, last one - output, in between - hidden neurons.
 
-    protected float m_currentFitness = 0f;
-    protected float m_bestFitness = 0f;
+    protected int m_currentFitness = 0;
+    protected int m_bestFitness = 0;
 
     private Vector3 m_defaultPosition;
     private Quaternion m_defaultRotation;
 
     private bool m_canGo = false;
-    private bool m_textInitialized = false;
 
     private int m_populationCount = 18;
     protected int m_currentGenomeIndex = 0;
@@ -62,7 +53,7 @@ public class Brains : MonoBehaviour {
         m_waypoints = FindObjectsOfType<Waypoint> ().ToList ();
         m_raycaster = m_carControl.GetComponent<Eyes> ();
 
-        InitializeText ();
+		SceneManager.sceneLoaded += OnSceneChanged;
 
         if (m_geneticAlg == null) {
             m_geneticAlg = new GeneticAlgorithm ();
@@ -86,7 +77,7 @@ public class Brains : MonoBehaviour {
                     return;
                 }
 				m_neuralNet.CreateNetFromGenome (genome, m_neuralTopology);
-                m_currentFitness = genome.fitness;
+				m_currentFitness = (int)genome.fitness;
             }
 
             m_defaultPosition = transform.position;
@@ -105,21 +96,18 @@ public class Brains : MonoBehaviour {
 
     private void ChangeScene ()
     {
-        m_textInitialized = false;
+		ChangeSubject ();
         m_canGo = false;
         m_carControl = null;
         m_raycaster = null;
         m_waypoints.Clear ();
         
-        SceneManager.sceneLoaded += OnSceneChanged;
         string currentSceneName = SceneManager.GetActiveScene ().name;
         SceneManager.LoadSceneAsync (currentSceneName, LoadSceneMode.Single);
     }
 
     private void OnSceneChanged (Scene scene, LoadSceneMode mode)
     {
-        SceneManager.sceneLoaded -= OnSceneChanged;
-        InitializeText ();
         m_carControl = FindObjectOfType<UnityStandardAssets.Vehicles.Car.CarUserControl> ();
         m_waypoints = FindObjectsOfType<Waypoint> ().ToList ();
         m_raycaster = m_carControl.GetComponent<Eyes> ();
@@ -167,16 +155,11 @@ public class Brains : MonoBehaviour {
             m_currentGenomeIndex = m_geneticAlg.GetCurrentGenomeIndex ();
             ChangeScene ();
         }
-
-        if (m_textInitialized) {
-            UpdateUILayer ();
-        }
     }
 
-    private float CalculateFitness ()
+    private int CalculateFitness ()
     {
-        float fitness = m_waypointsPast;
-        return fitness;
+		return m_waypointsPast;
     }
 
     public void DeactivateWaypoint(Waypoint waypoint)
@@ -194,7 +177,7 @@ public class Brains : MonoBehaviour {
 
     public void NextTestSubject ()
     {
-        m_currentFitness = 0.0f;
+        m_currentFitness = 0;
 
         GeneticAlgorithm.Genome genome = m_geneticAlg.GetNextGenome ();
 		m_neuralNet.CreateNetFromGenome (genome, m_neuralTopology);
@@ -208,36 +191,14 @@ public class Brains : MonoBehaviour {
         }
     }
 
-    private void InitializeText ()
-    {
-        if (generation == null || genome == null || bestFitness == null || fitness == null || h == null || v == null || time == null) {
-            Transform canvas = GameObject.FindGameObjectWithTag ("UICanvas").transform;
-            generation = canvas.FindChild (uiNames[0]).GetComponent<Text> ();
-            genome = canvas.FindChild (uiNames[1]).GetComponent<Text> ();
-            bestFitness = canvas.FindChild (uiNames[2]).GetComponent<Text> ();
-            fitness = canvas.FindChild (uiNames[3]).GetComponent<Text> ();
-            h = canvas.FindChild (uiNames[4]).GetComponent<Text> ();
-            v = canvas.FindChild (uiNames[5]).GetComponent<Text> ();
-            time = canvas.FindChild (uiNames[6]).GetComponent<Text> ();
-            speed = canvas.FindChild (uiNames[7]).GetComponent<Text> ();
-        }
+	public Face.TextData RequestTextData()
+	{
+		Face.TextData textData = new Face.TextData (m_currentGenerationIndex, m_currentGenomeIndex, m_bestFitness, m_currentFitness,
+			                         m_neuralNet.H, m_neuralNet.V, m_neuralNet.m_spentTime, m_carControl.GetCurrentSpeed ());
 
-        m_textInitialized = true;
-    }
+		return textData;
 
-    private void UpdateUILayer ()
-    {
-		generation.text = m_currentGenerationIndex.ToString ();
-		genome.text = m_currentGenomeIndex.ToString ();
-		bestFitness.text = m_bestFitness.ToString ();
-		fitness.text = m_currentFitness.ToString ();
-        if (m_neuralNet.m_outputs.Count > 1) {
-			h.text = m_carControl.H.ToString ();
-			v.text = m_neuralNet.m_outputs[1].ToString ();
-        }
-		time.text = m_neuralNet.m_spentTime.ToString("0.00");
-        speed.text = m_carControl.GetCurrentSpeed ().ToString("0.00");
-    }
+	}
 
     private void OnApplicationQuit()
     {

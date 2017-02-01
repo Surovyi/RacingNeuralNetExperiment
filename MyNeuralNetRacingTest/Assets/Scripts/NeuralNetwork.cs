@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+// Useful info to read
+// http://stevenmiller888.github.io/mind-how-to-build-a-neural-network/
+// http://nn.cs.utexas.edu/downloads/papers/stanley.ec02.pdf
+
 [RequireComponent (typeof (UnityStandardAssets.Vehicles.Car.CarUserControl))]
 public class NeuralNetwork {
-
-    // http://stevenmiller888.github.io/mind-how-to-build-a-neural-network/
-    // http://nn.cs.utexas.edu/downloads/papers/stanley.ec02.pdf
 
     [HideInInspector]
     public bool m_hasFailed = false;
@@ -18,6 +19,9 @@ public class NeuralNetwork {
     private int m_passedCheckpointsCount = 0;
     public float m_spentTime = 0f;
     private float m_timeThreshold = 4f;
+
+	public float H { get { return (m_outputs.Count > 1) ? m_outputs [0] : 0f; } }
+	public float V { get { return (m_outputs.Count > 1) ? m_outputs [1] : 0f; } }
 
     public void CreateNetFromGenome (GeneticAlgorithm.Genome genome, int[] neuralMap)
     {
