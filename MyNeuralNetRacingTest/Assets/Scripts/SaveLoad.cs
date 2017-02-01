@@ -19,20 +19,22 @@ public static class SaveLoad
         bestAIRun = Resources.Load<BestAIRun> (name);
     }
 
-    public static void SaveRun (GeneticAlgorithm.Genome genome)
+    public static void SaveRun (GeneticAlgorithm.Genome genome, int generationNumber, int genomeNumber)
     {
         FindScriptableObject ();
         bestAIRun.genomeToSave = genome;
+        bestAIRun.generationNumber = generationNumber;
+        bestAIRun.genomeNumber = genomeNumber;
         EditorUtility.SetDirty (bestAIRun);
     }
 
-    public static GeneticAlgorithm.Genome LoadRun ()
+    public static BestAIRun LoadRun ()
     {
         FindScriptableObject ();
         if (bestAIRun.genomeToSave == null) {
             Debug.LogError ("Nothing to load");
             return null;
         }
-        return bestAIRun.genomeToSave;
+        return bestAIRun;
     }
 }

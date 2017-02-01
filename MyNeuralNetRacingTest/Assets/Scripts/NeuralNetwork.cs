@@ -28,7 +28,6 @@ public class NeuralNetwork {
         m_network.Clear ();
         m_network.AddRange (GetInputNeurons ());
 
-		int numOfInputs = neuralMap [0];
 		int hiddenLayersCount = neuralMap.Length - 2;
 		int synapseIndex = 0;
 		for (int layer = 1; layer <= hiddenLayersCount; layer++) {
@@ -51,7 +50,6 @@ public class NeuralNetwork {
 			Neuron outputNeuron = new Neuron (Neuron.NeuronType.OUTPUT, neuralMap.Length - 1);
 
 			for (int j = 0; j < numOfHiddenNeurons; j++) {
-				int weightIndex = i * numOfInputs + j;
 				outputNeuron.m_weights.Add (genome.weights[synapseIndex]);
 				synapseIndex++;
             }

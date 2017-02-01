@@ -70,14 +70,18 @@ public class Brains : MonoBehaviour {
                 m_currentGenomeIndex = m_geneticAlg.GetCurrentGenomeIndex ();
 				m_neuralNet.CreateNetFromGenome (genome, m_neuralTopology);
             } else {
-                GeneticAlgorithm.Genome genome = SaveLoad.LoadRun ();
+                BestAIRun bestRun = SaveLoad.LoadRun ();
+                GeneticAlgorithm.Genome genome = bestRun.genomeToSave;
                 if (genome.weights.Count == 0) {
                     Debug.LogError ("There are nothing to load. Uncheck 'Load Best Genome' option.");
                     Debug.Break ();
                     return;
                 }
 				m_neuralNet.CreateNetFromGenome (genome, m_neuralTopology);
-				m_currentFitness = (int)genome.fitness;
+
+                m_currentGenerationIndex = bestRun.generationNumber;
+                m_currentGenomeIndex = bestRun.genomeNumber;
+                m_bestFitness = (int)genome.fitness;
             }
 
             m_defaultPosition = transform.position;
@@ -139,7 +143,7 @@ public class Brains : MonoBehaviour {
 
             if (m_currentFitness > m_bestFitness && !loadBestGenome) {
                 m_bestFitness = m_currentFitness;
-                SaveLoad.SaveRun (m_geneticAlg.GetCurrentGenome ());
+                SaveLoad.SaveRun (m_geneticAlg.GetCurrentGenome (), m_currentGenerationIndex, m_currentGenomeIndex);
                 Debug.Log ("Saved");
             }
             
@@ -204,7 +208,7 @@ public class Brains : MonoBehaviour {
     {
         if (m_currentFitness > m_bestFitness && !loadBestGenome) {
             m_bestFitness = m_currentFitness;
-            SaveLoad.SaveRun (m_geneticAlg.GetCurrentGenome ());
+            SaveLoad.SaveRun (m_geneticAlg.GetCurrentGenome (), m_currentGenerationIndex, m_currentGenomeIndex);
             Debug.Log ("Saved On Exit");
         }
     }
