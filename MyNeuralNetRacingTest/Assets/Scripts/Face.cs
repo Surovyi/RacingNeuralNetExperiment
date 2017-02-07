@@ -80,14 +80,14 @@ public class Face : MonoBehaviour {
 	{
 		public int currentGenerationIndex;
 		public int currentGenomeIndex;
-		public int bestFitness;
-		public int currentFitness;
+		public float bestFitness;
+		public float currentFitness;
 		public float h;
 		public float v;
 		public float spentTime;
 		public float speed;
 
-		public TextData (int currentGenerationIndex, int currentGenomeIndex, int bestFitness, int currentFitness, float h, float v, float spentTime, float speed)
+		public TextData (int currentGenerationIndex, int currentGenomeIndex, float bestFitness, float currentFitness, float h, float v, float spentTime, float speed)
 		{
 			this.currentGenerationIndex = currentGenerationIndex;
 			this.currentGenomeIndex = currentGenomeIndex;

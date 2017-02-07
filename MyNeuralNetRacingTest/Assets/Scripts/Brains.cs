@@ -19,8 +19,9 @@ public class Brains : MonoBehaviour {
 	    
 	private int[] m_neuralTopology = { 9, 30, 30, 2 }; //First number - input neurons count, last one - output, in between - hidden neurons.
 
-    protected int m_currentFitness = 0;
-    protected int m_bestFitness = 0;
+    protected float m_currentFitness = 0;
+    protected float m_bestFitness = 0;
+    private float m_fitressThreshold = 5f;
 
     private Vector3 m_defaultPosition;
     private Quaternion m_defaultRotation;
@@ -130,8 +131,6 @@ public class Brains : MonoBehaviour {
         m_carControl.H = m_neuralNet.m_outputs[0];
         m_carControl.V = m_neuralNet.m_outputs[1];
 
-        m_currentFitness = CalculateFitness ();
-
         if (m_neuralNet.m_hasFailed) {
             m_waypointsPast = 0;
             m_raycaster.ResetCrash ();
@@ -140,36 +139,56 @@ public class Brains : MonoBehaviour {
             if (loadBestGenome == false) {
                 m_geneticAlg.SetGenomeFitness (m_geneticAlg.GetCurrentGenomeIndex (), m_currentFitness);
             }
-
+            
             if (m_currentFitness > m_bestFitness && !loadBestGenome) {
                 m_bestFitness = m_currentFitness;
                 SaveLoad.SaveRun (m_geneticAlg.GetCurrentGenome (), m_currentGenerationIndex, m_currentGenomeIndex);
                 Debug.Log ("Saved");
             }
-            
-            if (m_geneticAlg.GetCurrentGenomeIndex () == m_populationCount - 1) {
-                m_geneticAlg.BreedPopulation ();
-                NextTestSubject ();
-                m_currentGenerationIndex++;
-                m_currentGenomeIndex = m_geneticAlg.GetCurrentGenomeIndex ();
-                ChangeScene ();
-                return;
-            }
-            NextTestSubject ();
-            m_currentGenomeIndex = m_geneticAlg.GetCurrentGenomeIndex ();
-            ChangeScene ();
+
+            GoToNextGenome ();
         }
     }
 
-    private int CalculateFitness ()
+    private void GoToNextGenome()
     {
-		return m_waypointsPast;
+        if (m_geneticAlg.GetCurrentGenomeIndex () == m_populationCount - 1) {
+            m_geneticAlg.BreedPopulation ();
+            NextTestSubject ();
+            m_currentGenerationIndex++;
+            m_currentGenomeIndex = m_geneticAlg.GetCurrentGenomeIndex ();
+            ChangeScene ();
+            return;
+        }
+        NextTestSubject ();
+        m_currentGenomeIndex = m_geneticAlg.GetCurrentGenomeIndex ();
+        ChangeScene ();
+    }
+
+    private float CalculateFitness ()
+    {
+        m_currentFitness = m_waypointsPast * (m_fitressThreshold - m_neuralNet.m_spentTime);
+        return m_currentFitness;
     }
 
     public void DeactivateWaypoint(Waypoint waypoint)
     {
         waypoint.gameObject.SetActive (false);
         m_waypointsPast++;
+
+        if (m_waypointsPast >= 300 && loadBestGenome == false) {
+            if (m_currentFitness > m_bestFitness) {
+                m_geneticAlg.SetGenomeFitness (m_geneticAlg.GetCurrentGenomeIndex (), CalculateFitness ());
+                SaveLoad.SaveRun (m_geneticAlg.GetCurrentGenome (), m_currentGenerationIndex, m_currentGenomeIndex);
+                Debug.Log ("Saved");
+            }
+            
+            Debug.Log ("Genome successful, going to next genome");
+            GoToNextGenome ();
+            return;
+        }
+
+        CalculateFitness ();
 
         if (m_waypointsPast % m_waypoints.Count == 0) {
             for (int i = 0; i < m_waypoints.Count; i++) {

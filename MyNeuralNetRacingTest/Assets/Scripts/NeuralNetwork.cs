@@ -64,7 +64,9 @@ public class NeuralNetwork {
         } else {
             m_passedCheckpointsCount = pastWaypoints;
             m_spentTime = Time.deltaTime;
-            m_timeThreshold += 0.2f;
+            if (m_timeThreshold < 4.9f) {
+                m_timeThreshold += 0.2f;
+            }
         }
 
         m_hasFailed = raycast.m_crash;
