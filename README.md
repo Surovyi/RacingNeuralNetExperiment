@@ -1,5 +1,5 @@
 # RacingNeuralNetExperiment
-My first step into neural nets. Will expand this project using new techniques and practices.
+My first step into neural networks. Will expand this project using new techniques and practices.
 
 Firstly, sorry for my englando.
 
@@ -14,4 +14,7 @@ Next goal would be to make car smarter, thus it will ride without dragging, fast
 into the 3rd track), and compete with other cars.
 
 Car has 9 sensors. 8 of them are a linecasts for different directions and the last one is the current speed. These sensors are 
-input neurons to neural net.
+input neurons to neural net. Number of hidden layers and neurons may vary manually (currently I'm using 2 hidden layers with 30 neurons for each), but this will be changed later. At the output neural network has two neurons which are used to drive a car.
+
+Car was taken from Unity Standart Assets and contains all it's functionality except that neural network trying to simulate pressing the
+WASD keys instead of user input system.
