@@ -10,8 +10,8 @@ public class GeneticAlgorithm
     public int m_totalPopulation = 0;
     public int m_generationNumber = 1;
 
-    public float m_mutationRate = 0.25f;
-    public float m_maxPerbetuation = 0.3f;
+    public float m_mutationRate = 0.2f;
+    public float m_maxPerbetuation = 0.2f;
 
     private int m_genomeID = 0;
     private int m_totalGenomeWeights;
@@ -198,6 +198,7 @@ public class GeneticAlgorithm
         for (int i = 0; i < genome.weights.Count; i++) {
             if (Random.Range (0f, 1f) < m_mutationRate) {
                 genome.weights[i] += (RandomFloat() * m_maxPerbetuation);
+                Mathf.Clamp (genome.weights[i], -1f, 1f);
             }
         }
 

@@ -17,7 +17,7 @@ public class Brains : MonoBehaviour {
 
 	public UnityEngine.Events.UnityAction ChangeSubject;
 	    
-	private int[] m_neuralTopology = { 9, 30, 30, 2 }; //First number - input neurons count, last one - output, in between - hidden neurons.
+	private int[] m_neuralTopology = { 9, 80, 80, 2 }; //First number - input neurons count, last one - output, in between - hidden neurons.
 
     protected float m_currentFitness = 0;
     protected float m_bestFitness = 0;
