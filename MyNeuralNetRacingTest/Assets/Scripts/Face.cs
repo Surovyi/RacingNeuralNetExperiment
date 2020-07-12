@@ -32,14 +32,14 @@ public class Face : MonoBehaviour {
 	{
 		if (m_generation == null || m_genome == null || m_bestFitness == null || m_fitness == null || m_h == null || m_v == null || m_time == null) {
 			Transform canvas = GameObject.FindGameObjectWithTag ("UICanvas").transform;
-			m_generation = canvas.FindChild (m_uiNames[0]).GetComponent<Text> ();
-			m_genome = canvas.FindChild (m_uiNames[1]).GetComponent<Text> ();
-			m_bestFitness = canvas.FindChild (m_uiNames[2]).GetComponent<Text> ();
-			m_fitness = canvas.FindChild (m_uiNames[3]).GetComponent<Text> ();
-			m_h = canvas.FindChild (m_uiNames[4]).GetComponent<Text> ();
-			m_v = canvas.FindChild (m_uiNames[5]).GetComponent<Text> ();
-			m_time = canvas.FindChild (m_uiNames[6]).GetComponent<Text> ();
-			m_speed = canvas.FindChild (m_uiNames[7]).GetComponent<Text> ();
+			m_generation = canvas.Find (m_uiNames[0]).GetComponent<Text> ();
+			m_genome = canvas.Find (m_uiNames[1]).GetComponent<Text> ();
+			m_bestFitness = canvas.Find (m_uiNames[2]).GetComponent<Text> ();
+			m_fitness = canvas.Find (m_uiNames[3]).GetComponent<Text> ();
+			m_h = canvas.Find (m_uiNames[4]).GetComponent<Text> ();
+			m_v = canvas.Find (m_uiNames[5]).GetComponent<Text> ();
+			m_time = canvas.Find (m_uiNames[6]).GetComponent<Text> ();
+			m_speed = canvas.Find (m_uiNames[7]).GetComponent<Text> ();
 
 			m_textInitialized = true;
 		}
